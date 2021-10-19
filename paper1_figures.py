@@ -116,7 +116,7 @@ def read_parameters(infile):
     stellar_parameters['ID'] = {'value': ids}
     stellar_parameters['logP'] = {'value': logPs[indices_with_Fe], 'label': 'log(P) [days]'}
 
-    tab = ascii.read('/Users/mromanie/LACES/data/Kurucz/Comparisons/SaraDesktop/synthmags/mag_hst_filters.dat')
+    tab = ascii.read('mag_hst_filters.dat')
     ids_ph, phases = tab['id'].data, tab['phase'].data
     phases = phases[np.argsort(ids_ph)]  # Make sure that the order is alphabetical by star ID
     stellar_parameters['phase'] = {'value': phases, 'label': 'Phase'}
