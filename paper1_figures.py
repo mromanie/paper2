@@ -1,10 +1,10 @@
-#import Cython.Compiler.TypeSlots
+# import Cython.Compiler.TypeSlots
 import matplotlib
 import numpy as np
 from astropy.io import ascii
 from astropy import constants as const
 
-matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
+# matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.optimize import curve_fit
