@@ -60,8 +60,9 @@ def read_parameters(infile):
     Read the values of metallicities and their uncertainties. Sort by object name (ID).
     :return: star ID, dictionary with the stellar parameters: [Fe/H], Teff, log(g), v_turb.
     """
-    indir = '/Users/mromanie/Desktop/PROPs/P106/SH0ES-LMC/'
-    tab = ascii.read(indir + infile)
+#     indir = '/Users/mromanie/Desktop/PROPs/P106/SH0ES-LMC/'
+#     tab = ascii.read(indir + infile)
+    tab = ascii.read(infile)
     ids = tab['CEP'].data
     sort_ind = np.argsort(ids)
 
