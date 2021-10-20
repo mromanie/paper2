@@ -1,6 +1,0 @@
-font.size: 20
-xtick.labelsize : 16
-ytick.labelsize : 16
-axes.labelsize: 20
-figure.subplot.top : 0.95
-figure.subplot.bottom : 0.15
