@@ -61,9 +61,8 @@ def read_parameters(infile):
     :return: star ID, dictionary with the stellar parameters: [Fe/H], Teff, log(g), v_turb.
     """
 #     indir = '/Users/mromanie/Desktop/PROPs/P106/SH0ES-LMC/'
-#     tab = ascii.read(indir + infile)
     indir = 'Files/'
-    tab = ascii.read(infile)
+    tab = ascii.read(indir + infile)
     ids = tab['CEP'].data
     sort_ind = np.argsort(ids)
 
