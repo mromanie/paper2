@@ -25,7 +25,7 @@ def read_riess():
                 the best fitting PLs (all dictionaries).
     """
     # Photometry (Table 2)
-    tab = ascii.read('Riess_2019_ApJ_876_85_Tab2.txt')
+    tab = ascii.read('Files/Riess_2019_ApJ_876_85_Tab2.txt')
     id_mag = np.char.replace(tab['ID'].data, 'OGL', 'OGLE')
     sort_ind = np.argsort(id_mag)
     #
@@ -42,7 +42,7 @@ def read_riess():
     geo = tab['Geo'].data[sort_ind]
 
     # Best fitting-PL (Table 3)
-    tab = ascii.read('Riess_2019_ApJ_876_85_Tab3.txt')
+    tab = ascii.read('Files/Riess_2019_ApJ_876_85_Tab3.txt')
     # Format as dictionaries
     pl_slope, pl_intercept, pl_scatter = dict(), dict(), dict()
 
@@ -62,6 +62,7 @@ def read_parameters(infile):
     """
 #     indir = '/Users/mromanie/Desktop/PROPs/P106/SH0ES-LMC/'
 #     tab = ascii.read(indir + infile)
+    indir = 'Files/'
     tab = ascii.read(infile)
     ids = tab['CEP'].data
     sort_ind = np.argsort(ids)
@@ -116,7 +117,7 @@ def read_parameters(infile):
     stellar_parameters['ID'] = {'value': ids}
     stellar_parameters['logP'] = {'value': logPs[indices_with_Fe], 'label': 'log(P) [days]'}
 
-    tab = ascii.read('mag_hst_filters.dat')
+    tab = ascii.read('Files/mag_hst_filters.dat')
     ids_ph, phases = tab['id'].data, tab['phase'].data
     phases = phases[np.argsort(ids_ph)]  # Make sure that the order is alphabetical by star ID
     stellar_parameters['phase'] = {'value': phases, 'label': 'Phase'}
@@ -134,7 +135,7 @@ def read_r08(mc):
     elif mc == 'SMC':
         data_start, data_end = 36, 50
     #
-    tab = ascii.read('Romaniello_2008_AA_488_731_Tab9.txt', data_start=data_start, data_end=data_end,
+    tab = ascii.read('Files/Romaniello_2008_AA_488_731_Tab9.txt', data_start=data_start, data_end=data_end,
                      delimiter='&', format='no_header', fast_reader=False)
     id = np.char.replace(tab['col1'].data, '~', '')
     id = np.char.replace(id, 'HV', mc)
@@ -166,7 +167,7 @@ def read_r08(mc):
     elif mc == 'SMC':
         data_start, data_end = 38, 52
     #
-    tab = ascii.read('Romaniello_2008_AA_488_731_Tab3.txt', data_start=data_start, data_end=data_end,
+    tab = ascii.read('Files/Romaniello_2008_AA_488_731_Tab3.txt', data_start=data_start, data_end=data_end,
                      delimiter='&', format='no_header', fast_reader=False)
     id = np.char.replace(tab['col1'].data, '~', '')
     id = np.char.replace(id, 'HV', mc)
@@ -465,410 +466,6 @@ def select(sample, what):
 
 # ______________________________________________________________________________________________________________________
 
-def hrd():
-    """
-    Plot the spectroscopic HRD (log(g) vs log(Teff)).
-    :return:
-    """
-
-    def compute_logli(logg, logte, dlogg=None, dlogte=None):
-        # Inverse of Rolf's flux-weighted gravity
-        logli = 4 * logte - logg - 10.61
-        if dlogg is not None and dlogte is not None:
-            dlogli = np.sqrt((4 * dlogte)**2 + (dlogg)**2)
-        else:
-            dlogli = None
-        return logli, dlogli
-
-    def compute_logg(logl, logte, mass):
-        logr2 = (logl + np.log10(const.L_sun.cgs.value)) - (np.log10(4 * np.pi * const.sigma_sb.cgs.value)
-                                                            + 4. * logte)
-        return np.log10(const.G.cgs.value * mass * const.M_sun.cgs.value) - logr2
-
-    def read_desomma(infile):
-        tab = ascii.read(infile, delimiter=';')
-        masss = tab2arr(tab, 'M/Mo')
-        logls = tab2arr(tab, 'log(L/Lo)')
-        logtes = tab2arr(tab, 'logTe')
-
-        logggs = compute_logg(logls, logtes, masss)
-        return logtes, logggs
-
-    def read_anderson(omega_ini=0):
-        if omega_ini == 0:
-            data_start, data_end = 2, 15
-        elif omega_ini == 0.5:
-            data_start, data_end = 16, 34
-        elif omega_ini == 0.9:
-            data_start, data_end = 35, 48
-        tab = ascii.read('Anderson_2016_AA_591_8_TabA2.txt', data_start=data_start, data_end=data_end)
-
-        masss = np.append(tab2arr(tab, 'M_in'), tab2arr(tab, 'M_in'))
-        logls = np.append(tab2arr(tab, 'log(L_in)'), tab2arr(tab, 'log(L_out)'))
-        logtes = np.append(tab2arr(tab, 'log(Teff_in)'), tab2arr(tab, 'log(Teff_out)'))
-        logggs = compute_logg(logls, logtes, masss)
-
-        return logtes, logggs
-
-    def draw_hull(ax, logtes, loggs, dots=True, **kwargs):
-        allPoints = np.column_stack((logtes, loggs))
-        hull = ConvexHull(allPoints)
-        #
-        line_segments = [hull.points[simplex] for simplex in hull.simplices]
-        collection = ax.add_collection(LineCollection(line_segments, **kwargs))
-        if dots:
-            if 'color' in kwargs:
-                color = kwargs['color']
-            else:
-                color = None
-            ax.plot(logtes, loggs, marker='o', linestyle='', color=color)
-        return collection
-
-    # _________________________________________________________________________________________________________________
-
-    ids, tes, dtes, lgP, phases, te_label, window_title = select(what, 'Teff')
-    ___, logtes, dlogtes, ___, ___, logte_label, ___ = select(what, 'logTeff')
-    ___, loggs, dloggs, ___, ___, logg_label, ___ = select(what, 'logg')
-    loglis, dloglis = compute_logli(loggs, logtes, dlogg=dloggs, dlogte=dlogtes)
-
-    '''
-    mass, logte, logl = 6.89, 3.766, 3.912
-    logg = compute_logg(logl, logte, mass)
-    logli, ___ = compute_logli(logg, logte)
-    print('log(g)=%.3f, log(Li)=%.3f' % (logg, logli))
-    # sys.exit()
-    '''
-
-    # De Somma+21 Cepeid models
-    logtes_mw, loggs_mw = read_desomma('./Tracks/track_mw_F_1p5_can.csv')
-    logtes_lmc, loggs_lmc = read_desomma('./Tracks/track_lmc_F_1p5_can.csv')
-    logtes_lmcn, loggs_lmcn = read_desomma('./Tracks/track_lmc_F_1p5_noncan.csv')
-    loglis_mw, ___ = compute_logli(loggs_mw, logtes_mw)
-    loglis_lmc, ___ = compute_logli(loggs_lmc, logtes_lmc)
-    loglis_lmcn, ___ = compute_logli(loggs_lmcn, logtes_lmcn)
-
-    # Theoretical instability strip by Anderson+2016
-    logtes_anderson0, loggs_anderson0 = read_anderson(omega_ini=0)
-    loglis_anderson0, ___ = compute_logli(loggs_anderson0, logtes_anderson0)
-    #
-    logtes_anderson05, loggs_anderson05 = read_anderson(omega_ini=0.5)
-    loglis_anderson05, ___ = compute_logli(loggs_anderson05, logtes_anderson05)
-    #
-    logtes_anderson09, loggs_anderson09 = read_anderson(omega_ini=0.9)
-    loglis_anderson09, ___ = compute_logli(loggs_anderson09, logtes_anderson09)
-
-    # Theoretical instability strip
-    tab = ascii.read('Carini_2014_AA_561_110_Tab1.txt')
-    Z_car, Y_car = tab2arr(tab, 'Z'), tab2arr(tab, 'Y')
-    masss_car, logls_car = tab2arr(tab, 'M/Mo'), tab2arr(tab, 'log_L/Lo')
-    logtes_fbe_car, logtes_fre_car = np.log10(tab2arr(tab, 'Te(FBE)')), np.log10(tab2arr(tab, 'Te(FRE)'))
-    loggs_fbe_car = compute_logg(logls_car, logtes_fbe_car, masss_car)
-    loggs_fre_car = compute_logg(logls_car, logtes_fre_car, masss_car)
-    loglis_fbe_car, ___ = compute_logli(loggs_fbe_car, logtes_fbe_car)
-    loglis_fre_car, ___ = compute_logli(loggs_fre_car, logtes_fre_car)
-    #
-    logtes_car = np.append(logtes_fre_car, logtes_fbe_car)
-    loggs_car = np.append(loggs_fre_car, loggs_fbe_car)
-    loglis_car = np.append(loglis_fre_car, loglis_fbe_car)
-
-    # Theoretical instability strip
-    tab = ascii.read('Chiosi_1993_ApJS_86_541_Tab8.txt')
-    masss_chiosi, logls_chiosi = tab2arr(tab, 'M/Mo'), tab2arr(tab, 'log(L/Lo)')
-    logtes_fbe_chiosi, logtes_fre_chiosi = tab2arr(tab, 'log(Teff_blue)'), tab2arr(tab, 'log(Teff_red)')
-    #
-    loggs_fbe_chiosi = compute_logg(logls_chiosi, logtes_fbe_chiosi, masss_chiosi)
-    loggs_fre_chiosi = compute_logg(logls_chiosi, logtes_fre_chiosi, masss_chiosi)
-    loglis_fbe_chiosi, ___ = compute_logli(loggs_fbe_chiosi, logtes_fbe_chiosi)
-    loglis_fre_chiosi, ___ = compute_logli(loggs_fre_chiosi, logtes_fre_chiosi)
-    #
-    logtes_chiosi = np.append(logtes_fre_chiosi, logtes_fbe_chiosi)
-    loggs_chiosi = np.append(loggs_fre_chiosi, loggs_fbe_chiosi)
-    loglis_chiosi = np.append(loglis_fre_chiosi, loglis_fbe_chiosi)
-    Y_car = np.append(Y_car, Y_car)
-
-    # MW Cepheids
-    tab = ascii.read('Ripepi_2021_MNRAS_Tab2.txt', fast_reader=False)
-    ids_rip = tab2arr(tab, 'ID')
-    for ii in np.arange(1, len(ids_rip)):
-        if ids_rip[ii] == '---':
-            ids_rip[ii] = ids_rip[ii-1]
-    loggs_rip = tab2arr(tab, 'logg')
-    logtes_rip = np.log10(tab2arr(tab, 'Teff'))
-    loglis_rip, ___ = compute_logli(loggs_rip, logtes_rip)
-    #
-    tab = ascii.read('Ripepi_2021_MNRAS_Tab4.txt', fast_reader=False)
-    stars_tmp = np.char.replace(tab2arr(tab, 'Star'), '_', '')
-    modes_tmp = tab2arr(tab, 'Mode')
-    lgP_tmp = np.log10(tab2arr(tab, 'P'))
-    #
-    modes_rip = np.chararray(len(ids_rip), itemsize=10, unicode=True)
-    lgP_rip = np.zeros(len(ids_rip))
-    for star, mode, lP in zip(stars_tmp, modes_tmp, lgP_tmp):
-        indices = [i for i, x in enumerate(ids_rip) if x == star]
-        modes_rip[indices] = mode
-        lgP_rip[indices] = lP
-
-    # Stars from Riess et al (2018). These are not Cepheids, but field stars for GAIA use.
-    tab = ascii.read('Riess_2018_ApJ_855_136_Tab2.txt')
-    loggs_riess = tab2arr(tab, 'Logg')
-    logtes_riess = np.log10(np.array(tab['T_eff']))
-    loglis_riess, ___ = compute_logli(loggs_riess, logtes_riess)
-
-    # Cepheids in LMC cluster NGC1866
-    tab = ascii.read('Costa_2019_AA_631_A128_Tab1.txt')
-    masss_costa = tab2arr(tab, 'Mass_[Mo]')
-    logls_costa = tab2arr(tab, 'logL_[Lo]')
-    logtes_costa = np.log10(tab2arr(tab, 'Teff_[K]'))
-    loggs_costa = compute_logg(logls_costa, logtes_costa, masss_costa)
-    loglis_costa, ___ = compute_logli(loggs_costa, logtes_costa)
-
-    # MW Cepheids
-    tab = ascii.read('Genovali_2014_AA_566_A37_Tab1.txt')
-    names_genovali = tab2arr(tab, 'Name')
-    loggs_genovali = tab2arr(tab, 'logg')
-    logtes_genovali = np.log10(tab2arr(tab, 'Teff'))
-    loglis_genovali, ___ = compute_logli(loggs_genovali,logtes_genovali)
-    #
-    tab = ascii.read('Genovali_2014_AA_566_A37_Tab3.txt')
-    names_tmp = tab2arr(tab, 'Name')
-    types_tmp = tab2arr(tab, 'Type')
-    lgP_tmp = tab2arr(tab, 'log(P)')
-    #
-    types_genovali = np.chararray(len(names_genovali), itemsize=10, unicode=True)
-    lgP_genovali = np.empty(len(names_genovali))
-    lgP_genovali[:] = np.nan
-    for star, mode, lP in zip(names_tmp, types_tmp, lgP_tmp):
-        indices = [i for i, x in enumerate(names_genovali) if x.lower() == star.lower()]
-        types_genovali[indices] = mode
-        lgP_genovali[indices] = lP
-
-
-    fig1, ax11 = plt.subplots(figsize=(12, 12))
-    set_window_position(fig1, 0, 20)
-    fig1.canvas.set_window_title('Figure 1: ' + window_title)
-    # fig1.subplots_adjust(top=0.95, bottom=0.2)
-    ax11.set_xlabel(latex(logte_label, '\mathrm'))
-    ax11.set_ylabel(latex(logg_label, '\mathrm'))
-    ax11.set_xlim(3.85, 3.6)
-    ax11.set_ylim(2.9, -0.25)
-    #
-    fig2, ax21 = plt.subplots(figsize=(12, 12))
-    set_window_position(fig2, 1200, 20)
-    fig2.canvas.set_window_title('Figure 2: ' + window_title)
-    # fig2.subplots_adjust(top=0.95, bottom=0.2)
-    ax21.set_xlabel(latex(logte_label, '\mathrm'))
-    ax21.set_ylabel(r'$\mathscr{L} / \mathscr{L}_\odot$')
-    ax21.set_xlim(3.85, 3.6)
-    ax21.set_ylim(1.6, 4.9)
-
-    mode0_rip, Y_car0 = 'DCEP_F', 0.25
-    def plot(ax, yys):
-        colormap = cm.viridis
-        lgP_all = np.concatenate((lgP, lgP_rip, np.isfinite(lgP_genovali)))
-        norm = matplotlib.colors.Normalize(vmin=np.min(lgP_all), vmax=np.max(lgP_all))
-
-        lines, labels, label_texts, label_visibility = [], [], [], []
-
-        rom_errs = ax.errorbar(logtes, yys['rom'], xerr=dlogtes, yerr=yys['drom'], fmt='.', markersize=1, capsize=3,
-                         color='tab:orange', zorder=5, linewidth=1)
-        rom_cmap = ax.scatter(logtes, yys['rom'], c=lgP, cmap=colormap, norm=norm, s=12**2, marker='o', zorder=7)
-        rom_dots = ax.scatter(logtes, yys['rom'], s=15**2, facecolors='none', edgecolors='tab:orange',
-                   zorder=7, linewidths=2.5)
-        lines.append((rom_dots, rom_cmap, rom_errs))
-        label_texts.append('Romaniello+21 LMC FU')
-        label_visibility.append(True)
-        labels.append(rom_dots)
-        #
-        se = modes_rip == mode0_rip
-        rip0_cmap = ax.scatter(logtes_rip[(se)], yys['rip'][(se)], marker='o', c=lgP_rip[(se)],
-                               cmap=colormap, norm=norm, s=12**2, zorder=3)
-        rip0_dots = ax.scatter(logtes_rip[(se)], yys['rip'][(se)], s=15**2, linewidths=2.5, linestyle='-',
-                               facecolors='none', edgecolors='red')
-        lines.append((rip0_cmap, rip0_dots))
-        label_texts.append('Ripepi+21 MW FU')
-        label_visibility.append(True)
-        labels.append(rip0_dots)
-        #
-        se = modes_rip != mode0_rip
-        rip10_cmap = ax.scatter(logtes_rip[(se)], yys['rip'][(se)], marker='o', c=lgP_rip[se], cmap=colormap,
-                                norm=norm, s=12 ** 2, zorder=3)
-        rip10_dots = ax.scatter(logtes_rip[(se)], yys['rip'][(se)], s=15**2, linewidths=2.5, linestyle=':',
-                                facecolors='none', edgecolors='red')
-        lines.append((rip10_cmap, rip10_dots))
-        label_texts.append('Ripepi+21 MW F10')
-        label_visibility.append(True)
-        labels.append(rip10_dots)
-        #
-        genovali_cmap = ax.scatter(logtes_genovali, yys['genovali'], marker='o', c=lgP_genovali, cmap=colormap,
-                                   norm=norm, s=12**2, zorder=3)
-        genovali_dots = ax.scatter(logtes_genovali, yys['genovali'], s=15**2, linewidths=1.5, linestyle='-',
-                                   facecolors='none', edgecolors='magenta')
-        lines.append((genovali_cmap, genovali_dots))
-        label_texts.append('Genovali+14 MW')
-        label_visibility.append(True)
-        labels.append(genovali_dots)
-        #
-        desommaMW_hull = draw_hull(ax, logtes_mw, yys['dsm_mw'], dots=False, color='C3', linewidth=3)
-        lines.append(desommaMW_hull)
-        label_texts.append('De Somma+21 MW')
-        label_visibility.append(False)
-        labels.append(desommaMW_hull)
-        #
-        desommaLMC_hull = draw_hull(ax, logtes_lmc, yys['dsm_lmc'], dots=False, color='C1', linewidth=3)
-        lines.append(desommaLMC_hull)
-        label_texts.append('De Somma+21 LMC')
-        label_visibility.append(True)
-        labels.append(desommaLMC_hull)
-        #
-        desommaLMCnc_hull = draw_hull(ax, logtes_lmcn, yys['dsm_lmcn'], dots=False, color='C1', linestyle='--',
-                                    linewidth=3)
-        lines.append(desommaLMCnc_hull)
-        label_texts.append('De Somma+21 LMC nc')
-        label_visibility.append(False)
-        labels.append(desommaLMCnc_hull)
-        #
-        anderson0_hull = draw_hull(ax, logtes_anderson0, yys['anderson0'], dots=False, color='C9', linewidth=3,
-                                    linestyle='-')
-        lines.append(anderson0_hull)
-        label_texts.append(r'Anderson+16 LMC $\omega_\mathrm{ini}=0$')
-        label_visibility.append(False)
-        labels.append(anderson0_hull)
-        #
-        anderson05_hull = draw_hull(ax, logtes_anderson05, yys['anderson05'], dots=False, color='C9', linewidth=3,
-                                     linestyle='-.')
-        lines.append(anderson05_hull)
-        label_texts.append(r'Anderson+16 LMC $\omega_\mathrm{ini}=0.5$')
-        label_visibility.append(True)
-        labels.append(anderson05_hull)
-        #
-        anderson09_hull = draw_hull(ax, logtes_anderson09, yys['anderson09'], dots=False, color='C9', linewidth=3,
-                                     linestyle='-.')
-        lines.append(anderson09_hull)
-        label_texts.append(r'Anderson+16 LMC $\omega_\mathrm{ini}=0.9$')
-        label_visibility.append(False)
-        labels.append(anderson09_hull)
-        #
-        car_hull = draw_hull(ax, logtes_car[(Y_car == Y_car0)], yys['car'][(Y_car == Y_car0)], dots=False,
-                              color='C5', linewidth=3)
-        lines.append(car_hull)
-        label_texts.append('Carini+14')
-        label_visibility.append(False)
-        labels.append(car_hull)
-        #
-        chiosi_hull = draw_hull(ax, logtes_chiosi, yys['chiosi'], dots=False, linewidth=3, color='C7')
-        lines.append(chiosi_hull)
-        label_texts.append('Chiosi+93 Z=0.008')
-        label_visibility.append(False)
-        labels.append(chiosi_hull)
-        #
-        costa_dots = ax.scatter(logtes_costa, yys['costa'], color='C8', s=12**2, zorder=1)
-        lines.append(costa_dots)
-        label_texts.append('Costa+19 LMC')
-        label_visibility.append(False)
-        labels.append(costa_dots)
-        #
-        riess_dots = ax.scatter(logtes_riess, yys['riess'], color='C4', s=12**2, zorder=1)
-        lines.append(riess_dots)
-        label_texts.append('Riess+18 MW')
-        label_visibility.append(False)
-        labels.append(riess_dots)
-
-
-        # Add the legend ...
-        leg = ax.legend(labels, label_texts, fontsize=10, loc='lower right',
-                        title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
-        # ... and the colorbar
-        sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
-        cax = ax.inset_axes([1.025, 0., 0.025, 1], transform=ax.transAxes)
-        cb = plt.gcf().colorbar(sm, ticks=None, ax=ax, cax=cax)
-        cb.ax.set_yticklabels(['{:.1f}'.format(x) for x in cb.ax.get_yticks()], rotation=90)
-        cb.ax.set_ylabel('log(P) [days]')
-
-        lined = {}
-        for legtext, legvisi, origline in zip(leg.get_texts(), label_visibility, lines):
-            legtext.set_picker(True)  # Enable picking on the legend label/text
-            legtext.set_alpha(1 if legvisi else 0.2)  # Set the initial transparency
-            lined[legtext] = origline  # Make the correspondence between legend entry and line/dots
-            # Set the initial visibility ...
-            if type(origline) is not tuple:
-                origline = (origline, )
-            for ol in origline:
-                if type(ol) is not matplotlib.container.ErrorbarContainer:
-                    ol.set_visible(legvisi)
-                else:
-                    ol[0].set_visible(legvisi)
-                    for ole in (1, len(ol)-1):
-                        for oli in ol[ole]:
-                            oli.set_visible(legvisi)
-
-        def on_pick(event):
-            # On the pick event, find the original line corresponding to the legend
-            # proxy line, and toggle its visibility.
-            legtext = event.artist
-            origline = lined[legtext]
-            if type(origline) is not tuple:
-                origline = (origline, )
-            for ol in origline:
-                if type(ol) is not matplotlib.container.ErrorbarContainer:
-                    visible = not ol.get_visible()
-                    ol.set_visible(visible)
-                else:
-                    visible = not ol[0].get_visible()
-                    ol[0].set_visible(visible)
-                    for ole in (1, len(ol)-1):
-                        for oli in ol[ole]:
-                            visible = not oli.get_visible()
-                            oli.set_visible(visible)
-            # Change the alpha on the line in the legend so we can see what lines
-            # have been toggled.
-            legtext.set_alpha(1.0 if visible else 0.2)
-            # legtext._legmarker.set_alpha(1.0 if visible else 0.2)
-            ax.get_figure().canvas.draw()
-        ax.get_figure().canvas.mpl_connect('pick_event', on_pick)
-
-    gg = {'rom': loggs, 'drom': dloggs, 'dsm_mw': loggs_mw, 'dsm_lmc': loggs_lmc, 'dsm_lmcn': loggs_lmcn,
-          'rip': loggs_rip, 'riess': loggs_riess, 'car': loggs_car, 'chiosi': loggs_chiosi, 'costa': loggs_costa,
-          'genovali': loggs_genovali, 'anderson0': loggs_anderson0, 'anderson05': loggs_anderson05,
-          'anderson09': loggs_anderson09}
-    plot(ax11, gg)
-    #
-    ll = {'rom': loglis, 'drom': dloglis, 'dsm_mw': loglis_mw, 'dsm_lmc': loglis_lmc, 'dsm_lmcn': loglis_lmcn,
-          'rip': loglis_rip, 'riess': loglis_riess, 'car': loglis_car, 'chiosi': loglis_chiosi, 'costa': loglis_costa,
-          'genovali': loglis_genovali, 'anderson0': loglis_anderson0, 'anderson05': loglis_anderson05,
-          'anderson09': loglis_anderson09}
-    plot(ax21, ll)
-
-
-    fig3, ax31 = plt.subplots(figsize=(12, 12))
-    set_window_position(fig3, 0, 20)
-    fig3.canvas.set_window_title('Figure 3: ' + window_title)
-    # fig3.subplots_adjust(top=0.95, bottom=0.2)
-    ax31.set_xlabel(latex(logg_label, '\mathrm'))
-    ax31.set_ylabel('Number')
-    ___, bins, ___ = ax31.hist(loggs, bins=5, zorder=1, color='royalblue', histtype=u'step', linewidth=3,
-                               label='Romaniello+21')
-    ax31.hist(loggs_rip[(modes_rip == mode0_rip)], bins=bins, zorder=1, color='orangered', histtype=u'step', linewidth=3,
-              label='Ripepi+21 FU')
-    ax31.hist(loggs_rip, bins=bins, zorder=1, color='orangered', histtype=u'step', linewidth=2, linestyle='--',
-              label='Ripepi+21 all')
-    ax31.legend()
-
-
-    fig4, ax41 = plt.subplots(figsize=(12, 12))
-    set_window_position(fig4, 1500, 20)
-    fig4.canvas.set_window_title('Figure 4: ' + window_title)
-    # fig4.subplots_adjust(top=0.95, bottom=0.2)
-    ax41.set_xlabel('log(P) [days]')
-    ax41.set_ylabel(latex(logg_label, '\mathrm'))
-    #
-    ax41.plot(lgP, loggs, marker='o', linestyle='', color='tab:orange', markersize=12, zorder=5,
-              label='Romaniello+21 LMC')
-    ax41.plot(lgP_rip[(modes_rip == mode0_rip)], loggs_rip[(modes_rip == mode0_rip)], marker='o', linestyle='',
-              color='red', markersize=12, zorder=3, label='Ripepi+21 MW FU')
-    ax41.plot(lgP_genovali, loggs_genovali, marker='o', linestyle='', color='magenta', markersize=12, zorder=5,
-              label='Genovali+14 LMC')
-    ax41.legend()
-
 
 def ages():
     """
@@ -1051,7 +648,7 @@ def periods():
     ___, ___, ___, lgP_all, ___, ___, window_title = select('Tot20allRT20M', 'Teff')
     ___, ___, ___, lgP_riess19, ___, ___, window_title = select('Tot20all', 'Teff')
     #
-    tab = ascii.read('Ripepi_2021_MNRAS_Tab4.txt', fast_reader=False)
+    tab = ascii.read('Files/Ripepi_2021_MNRAS_Tab4.txt', fast_reader=False)
     stars_mode_rip = np.char.replace(tab2arr(tab, 'Star'), '_', '')
     lgP_rip = np.log10(tab2arr(tab, 'P'))
     mode_rip = tab2arr(tab, 'Mode')
@@ -1085,7 +682,7 @@ def phase_teff(what):
     :return:
     """
     '''
-    tab = ascii.read('/Users/mromanie/LACES/data/Kurucz/Comparisons/SaraDesktop/synthmags/mag_hst_filters.dat')
+    tab = ascii.read('Files//Users/mromanie/LACES/data/Kurucz/Comparisons/SaraDesktop/synthmags/mag_hst_filters.dat')
     ids_ph, phases = tab['id'].data, tab['phase'].data
     phases = phases[np.argsort(ids_ph)]  # Make sure that the order is alphabetical by star ID
     '''
@@ -1567,12 +1164,12 @@ def histograms(what, element):
 
 def h_residuals():
     # Input files provided by Adam
-    tab = ascii.read('H_residualsR08.txt')
+    tab = ascii.read('Files/H_residualsR08.txt')
     old_fes, dold_fes = np.array(tab['Old_Fe/H']), np.array(tab['errO'])
     new_fes, dnew_fes = np.array(tab['New_Fe/H']), np.array(tab['errN'])
     h_ress, dh_ress = np.array(tab['H-band_dereddened_PL_residual']), np.array(tab['err'])
     #
-    tab = ascii.read('H_residualsR21.txt')
+    tab = ascii.read('Files/H_residualsR21.txt')
     new_fes68, dnew_fes68 = np.array(tab['Fe/H']), np.array(tab['err'])
     h_ress68, dh_ress68 = np.array(tab['H-band_dereddened_PL_residual']), np.array(tab['error'])
 
