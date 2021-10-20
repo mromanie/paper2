@@ -1,10 +1,9 @@
-%matplotlib ipympl
 import matplotlib
 import numpy as np
 from astropy.io import ascii
 from astropy import constants as const
 
-matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
+# matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.spatial import ConvexHull
@@ -188,18 +187,18 @@ def read():
 
 
 def hrd():
-    fig1, ax11 = plt.subplots(figsize=(12, 12))
-    p1.set_window_position(fig1, 0, 20)
-    fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
+    fig1, (ax11, ax21) = plt.subplots(nrows=2, ncols=1, figsize=(12, 26))
+    # p1.set_window_position(fig1, 0, 20)
+    # fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
     ax11.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
     ax11.set_ylabel(p1.latex(n.logg_label, '\mathrm'))
     ax11.set_xlim(3.85, 3.6)
     ax11.set_ylim(2.9, -0.25)
     #
-    fig2, ax21 = plt.subplots(figsize=(12, 12))
-    p1.set_window_position(fig2, 1200, 20)
-    fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
+    # fig2, ax21 = plt.subplots(figsize=(12, 12))
+    # p1.set_window_position(fig2, 1200, 20)
+    # fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
     ax21.set_ylabel(r'$\mathscr{L} / \mathscr{L}_\odot$')
@@ -344,6 +343,7 @@ def hrd():
                     for ole in (1, len(ol)-1):
                         for oli in ol[ole]:
                             oli.set_visible(legvisi)
+        
 
         def on_pick(event):
             # On the pick event, find the original line corresponding to the legend
@@ -369,18 +369,20 @@ def hrd():
             # legtext._legmarker.set_alpha(1.0 if visible else 0.2)
             ax.get_figure().canvas.draw()
         ax.get_figure().canvas.mpl_connect('pick_event', on_pick)
+        return ax
 
     gg = {'rom': n.loggs, 'drom': n.dloggs, 'dsm_mw': n.loggs_mw, 'dsm_lmc': n.loggs_lmc, 'dsm_lmcn': n.loggs_lmcn,
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
           'costa': n.loggs_costa, 'genovali': n.loggs_genovali, 'anderson0': n.loggs_anderson0,
           'anderson05': n.loggs_anderson05, 'anderson09': n.loggs_anderson09}
-    plot(ax11, gg)
+    a = plot(ax11, gg)
     #
     ll = {'rom': n.loglis, 'drom': n.dloglis, 'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
           'rip': n.loglis_rip, 'riess': n.loglis_riess, 'car': n.loglis_car, 'chiosi': n.loglis_chiosi,
           'costa': n.loglis_costa, 'genovali': n.loglis_genovali, 'anderson0': n.loglis_anderson0,
           'anderson05': n.loglis_anderson05, 'anderson09': n.loglis_anderson09}
-    plot(ax21, ll)
+    b = plot(ax21, ll)
+    return a, b
 
 def figs():
     mode0_rip, Y_car0 = 'DCEP_F', 0.25
@@ -430,11 +432,11 @@ def figs():
     ax31.legend()
 
 # ______________________________________________________________________________________________________________________
+from sys import argv
 import paper1_figures as p1
 
-parser = argparse.ArgumentParser()
-parser.add_argument('what_plot', help='What plot to plot', type=str)
-args = parser.parse_args()
+what_plot = argv[1]
+
 
 plt.style.use('Files/paper.mplstyle')
 
@@ -455,9 +457,9 @@ what = 'Tot20allRT20M'  # SH0ES2020 + R08 samples analysed by Martino w/ exc bal
 tmp = read()
 n = SimpleNamespace(**tmp)
 
-if args.what_plot == 'hrd':
-    hrd()
+if what_plot == 'hrd':
+    a, b = hrd()
     plt.show()
-elif args.what_plot == 'figs':
+elif what_plot == 'figs':
     figs()
     plt.show()
