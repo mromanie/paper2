@@ -210,8 +210,12 @@ def read_r08(mc):
 # ______________________________________________________________________________________________________________________
 # _______________________________________________ Convenience functions ________________________________________________
 def tab2arr(tab, col):
-    return np.array(tab[col].data)
-
+    try:
+        # The column read from the file is Masked ... replace the missing values with NaN
+        mask = np.ma.getmask(tab[col])
+        return np.array(tab[col].filled(np.nan).data)
+    except:
+        return np.array(tab[col].data)
 
 def log2lin(xx):
     return 10 ** xx
