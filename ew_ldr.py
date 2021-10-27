@@ -97,26 +97,27 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab):
 
     line00, = ax00.plot(stellar_parameters_1['Teff']['value'],
                       stellar_parameters_1['Teff']['value'] - stellar_parameters_2['Teff']['value'],
-                      marker='o', linestyle='', pickradius=5, picker=True)
+                      marker='o', linestyle='', markersize=10, pickradius=5, picker=True)
     ax00.set_xlabel(latex(stellar_parameters_1['Teff']['label'], '\mathrm') + ' ' + xlab)
     ax00.set_ylabel(ylab)
-    color, marker,linestyle = line00.get_color(), line00.get_marker(), line00.get_linestyle()
+    color, marker, = line00.get_color(), line00.get_marker()
+    linestyle, markersize = line00.get_linestyle(), line00.get_markersize()
     #
     line01, = ax01.plot(stellar_parameters_1['Fe']['value'],
                       stellar_parameters_1['Fe']['value'] - stellar_parameters_2['Fe']['value'],
-                      marker=marker, linestyle=linestyle, color=color, pickradius=5, picker=True)
+                      marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5, picker=True)
     ax01.set_xlabel(latex(stellar_parameters_1['Fe']['label'], '\mathrm') + ' ' + xlab)
     ax01.set_ylabel(ylab)
     #
     line10, = ax10.plot(stellar_parameters_1['logg']['value'],
                       stellar_parameters_1['logg']['value'] - stellar_parameters_2['logg']['value'],
-                      marker=marker, linestyle=linestyle, color=color, pickradius=5, picker=True)
+                      marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5, picker=True)
     ax10.set_xlabel(latex(stellar_parameters_1['logg']['label'], '\mathrm') + ' ' + xlab)
     ax10.set_ylabel(ylab)
     #
     line11, = ax11.plot(stellar_parameters_1['vturb']['value'],
                       stellar_parameters_1['vturb']['value'] - stellar_parameters_2['vturb']['value'],
-                      marker=marker, linestyle=linestyle, color=color, pickradius=5, picker=True)
+                      marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5, picker=True)
     ax11.set_xlabel(latex(stellar_parameters_1['vturb']['label'], '\mathrm') + ' ' + xlab)
     ax11.set_ylabel(ylab)
 
@@ -129,7 +130,7 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab):
                     child.remove()
                 if isinstance(child, matplotlib.lines.Line2D):
                     xx, yy = child.get_xdata(), child.get_ydata()
-                axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red')
+                axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red', size=12)
         fig.canvas.draw()
         fig.canvas.flush_events()
     
@@ -143,29 +144,27 @@ def main(what_plot):
     Read the input files with the stellar parameters, match them, make the plots for the user to
     select one star from ... return the id of the selection
     """
-    # Sara Teff fixed from our LDRs
-    ids_ldr_sara, stellar_parameters_ldr_sara = read_parameters('SH0ES_atmparam_alllines_all.dat')
-    #
+    
     # Martino Teff fixed from our LDR
-    ids_ldr_martino, stellar_parameters_ldr_martino = read_parameters('SH0ES_atmparam_alllines_all.dat')
+    ids_ldr, stellar_parameters_ldr = read_parameters('SH0ES_atmparam_LDR_alllines_all.dat')
     #
     # Martino Teff fixed from Proxauf's LDR
-    ids_ldr_martinoprox, stellar_parameters_ldr_martinoprox = read_parameters('SH0ES_atmparam_LDRProxauf_alllines_all.dat')
+    ids_ldrProx, stellar_parameters_ldrProx = read_parameters('SH0ES_atmparam_LDRProxauf_alllines_all.dat')
     #
     # Martino exc balance from 5500 K ... preferred
-    ids_martino, stellar_parameters_martino = read_parameters('SH0ES_atmparam_FREETotal_alllines_all.dat')
+    ids_ew, stellar_parameters_ew = read_parameters('SH0ES_atmparam_FREETotal_alllines_all.dat')
     
     xlab0 = r', $\mathrm{T}_\mathrm{eff}$ from '
     if what_plot == 'ldr_ldr':
-        ids = ids_ldr_martino
-        stellar_parameters_1 = stellar_parameters_ldr_martino
-        stellar_parameters_2 = stellar_parameters_ldr_martinoprox
+        ids = ids_ldr
+        stellar_parameters_1 = stellar_parameters_ldr
+        stellar_parameters_2 = stellar_parameters_ldrProx
         xlab = xlab0 + r'$\mathrm{LDR}_\mathrm{us}$'
         ylab = r'$\mathrm{LDR}_\mathrm{us} - \mathrm{LDR}_\mathrm{Proxauf}$'
     elif what_plot == 'ew_ldr':
-        ids = ids_martino
-        stellar_parameters_1 = stellar_parameters_martino
-        stellar_parameters_2 = stellar_parameters_ldr_martinoprox
+        ids = ids_ew
+        stellar_parameters_1 = stellar_parameters_ew
+        stellar_parameters_2 = stellar_parameters_ldrProx
         xlab = xlab0 + r'$\mathrm{EW}$'
         ylab = r'$\mathrm{EW} - \mathrm{LDR}_\mathrm{Proxauf}$'
         
