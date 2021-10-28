@@ -137,6 +137,7 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, f
     ax21.hist(stellar_parameters_2['Fe']['value'], bins=bins, histtype=u'step', linewidth=3,
              label=latex(ylab.split('-')[-1], '\mathrm'))
     ax21.set_xlabel(latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
+    ax21.set_ylabel('Number')
     ax21.set_xlim(left=np.min(bins), right=np.max(bins))
     ax21.legend(loc='upper left')
 
@@ -148,9 +149,9 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, f
             for child in axx.get_children():
                 if isinstance(child, matplotlib.text.Annotation):
                     child.remove()
-                if isinstance(child, matplotlib.lines.Line2D):
+                if isinstance(child, matplotlib.lines.Line2D) and child.get_picker() == True:
                     xx, yy = child.get_xdata(), child.get_ydata()
-                axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red', size=12)
+            axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red', size=12)
         fig.canvas.draw()
         fig.canvas.flush_events()
     
@@ -191,7 +192,6 @@ def main(what_plot, figsize):
         ids = ids_ew
         stellar_parameters_1 = stellar_parameters_ew
         stellar_parameters_2 = stellar_parameters_ldrProx
-        stellar_parameters_2 = stellar_parameters_ldr
         xlab = xlab0 + 'EW'
         ylab = 'EW - LDR_{Proxauf}'
         
