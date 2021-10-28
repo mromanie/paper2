@@ -205,9 +205,10 @@ def main(what_plot, figsize):
 
 # ______________________________________________________________________________________________________________________
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+def do(what_plot, figsize):
 
 #     plt.style.use('Files/paper.mplstyle')
-    what_plot = sys.argv[1]
-    figsize = (float(sys.argv[2]), float(sys.argv[3]))
+    #what_plot = sys.argv[1]
+    #figsize = (float(sys.argv[2]), float(sys.argv[3]))
     index = main(what_plot, figsize)
