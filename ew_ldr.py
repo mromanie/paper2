@@ -122,11 +122,14 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, f
     ax11.set_xlabel(latex(stellar_parameters_1['vturb']['label'], '\mathrm') + ' ' + latex(xlab, '\mathrm'))
     ax11.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['vturb']['label'], '\mathrm'))
     #
-    line21, = ax20.plot(stellar_parameters_1['Teff']['value'] - stellar_parameters_2['Teff']['value'],
-                        stellar_parameters_1['Fe']['value'] - stellar_parameters_2['Fe']['value'],
+    dTeff = stellar_parameters_1['Teff']['value'] - stellar_parameters_2['Teff']['value']
+    dFe = stellar_parameters_1['Fe']['value'] - stellar_parameters_2['Fe']['value']
+    line20, = ax20.plot(dTeff, dFe,
                         marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5, picker=True)
+    ax20.axline((np.mean(dTeff), np.mean(dFe)), slope=0.07 / 100, label='0.07 dex / 100 K (Rom+2008)', color='C3', zorder=5)
     ax20.set_xlabel(r'$\Delta$' + latex(stellar_parameters_1['Teff']['label'], '\mathrm'))
     ax20.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
+    ax20.legend()
     #
     bins = np.arange(-0.9, 0.2, 0.1)
     ax21.hist(stellar_parameters_1['Fe']['value'], histtype=u'step', linewidth=3,
