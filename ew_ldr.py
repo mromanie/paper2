@@ -5,7 +5,7 @@ import matplotlib
 from astropy.io import ascii
 import numpy as np
 from matplotlib import pyplot as plt
-import sys, importlib
+import sys, importlib, argparse
 
 
 def deLatex(instring):
@@ -204,7 +204,9 @@ def main(what_plot, figsize):
 
 # ______________________________________________________________________________________________________________________
 if __name__ == '__main__':
-#     plt.style.use('Files/paper.mplstyle')
-    what_plot = sys.argv[1]
-    figsize = (float(sys.argv[2]), float(sys.argv[3]))
-    index = main(what_plot, figsize)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('what_plot', help='What plot to plot', type=str)
+    parser.add_argument('--figsize', default=[12, 12], help='Size of the figure', nargs='+', type=int)
+    args = parser.parse_args()
+
+    main(args.what_plot, tuple(args.figsize))
