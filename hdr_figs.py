@@ -704,7 +704,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('what_plot', help='What plot to plot', type=str)
     parser.add_argument('--color_scale', default='periods', help='What plot to plot', type=str)
-    parser.add_argument('--figsize', default=[12, 12], help='Size of the figure (tuple)', nargs='+', type=int)
+    parser.add_argument('--figsize', default=[12, 12], help='Size of the figure (tuple)', nargs=2, type=int)
     args = parser.parse_args()
 
     plt.style.use('Files/paper.mplstyle')
