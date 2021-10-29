@@ -676,13 +676,6 @@ def figs(n, figsize):
 # ______________________________________________________________________________________________________________________
 def main(what_plot, color_scale, figsize):
 
-    plt.style.use('Files/paper.mplstyle')
-
-    try:
-        figsize
-    except NameError:
-        figsize = (12, 12)
-
     # Read the inputs from file
     p1.ids_mag, p1.logPs, p1.mags, p1.emags, geo, pl_slope, pl_intercept, pl_scatter = p1.read_riess()
     p1.stellar_parameters_r08, p1.intrinsic_parameters_r08 = p1.read_r08('LMC')  # R08 from the paper
@@ -713,5 +706,7 @@ if __name__ == '__main__':
     parser.add_argument('--color_scale', default='periods', help='What plot to plot', type=str)
     parser.add_argument('--figsize', default=[12, 12], help='Size of the figure (tuple)', nargs='+', type=int)
     args = parser.parse_args()
+
+    plt.style.use('Files/paper.mplstyle')
 
     main(args.what_plot, args.color_scale, tuple(args.figsize))
