@@ -159,8 +159,8 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, f
 
     plt.show()
 
-# ______________________________________________________________________________________________________________________
-def do_ew_ldr(what_plot, figsize):
+
+def main(what_plot, figsize):
     """
     Read the input files with the stellar parameters, match them, make the plots for the user to
     select one star from ... return the id of the selection
@@ -201,3 +201,10 @@ def do_ew_ldr(what_plot, figsize):
     
 
     plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize)
+
+# ______________________________________________________________________________________________________________________
+if __name__ == '__main__':
+#     plt.style.use('Files/paper.mplstyle')
+    what_plot = sys.argv[1]
+    figsize = (float(sys.argv[2]), float(sys.argv[3]))
+    index = main(what_plot, figsize)
