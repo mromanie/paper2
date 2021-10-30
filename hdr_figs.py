@@ -313,7 +313,7 @@ def hrd(n, color_scale, figsize):
     ax21.set_xlim(3.85, 3.6)
     ax21.set_ylim(1.6, 4.9)
 
-    def plot(ax, yys, color_scale='periods'):
+    def plot(ax, yys, color_scale='periods', plot_degeneracy=False):
         if color_scale == 'periods':
             col = n.lgP
             col_rip = n.lgP_rip
@@ -455,6 +455,16 @@ def hrd(n, color_scale, figsize):
         label_visibilities.append(False)
         labels.append(riess_dots)
 
+        # Plot a line with the slope of the log(Teff) - log(g) degeneracy
+        # as computed in ew_ldr.py
+        if plot_degeneracy:
+            degeneracy = ax.axline((3.70, 2.5), slope=21, color='C4', linestyle=':', linewidth=2)
+            lines.append(degeneracy)
+            label_texts.append('Degeneracy')
+            label_visibilities.append(True)
+            labels.append(degeneracy)
+
+
         # Add the legend ...
         leg = ax.legend(labels, label_texts, fontsize=10, loc='lower right',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
@@ -472,7 +482,7 @@ def hrd(n, color_scale, figsize):
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
           'costa': n.loggs_costa, 'genovali': n.loggs_genovali, 'luck': n.loggs_luck, 'anderson0': n.loggs_anderson0,
           'anderson05': n.loggs_anderson05, 'anderson09': n.loggs_anderson09, 'anderson05mw': n.loggs_anderson05mw}
-    plot(ax11, gg, color_scale=color_scale)
+    plot(ax11, gg, color_scale=color_scale, plot_degeneracy=True)
     #
     ll = {'rom': n.loglis, 'drom': n.dloglis, 'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
           'rip': n.loglis_rip, 'riess': n.loglis_riess, 'car': n.loglis_car, 'chiosi': n.loglis_chiosi,
@@ -673,6 +683,7 @@ def figs(n, figsize):
               linestyle='-', label='Genovali+14 MW')
     ax61.legend(loc='upper right')
 
+
 # ______________________________________________________________________________________________________________________
 def main(what_plot, color_scale, figsize):
 
@@ -698,6 +709,9 @@ def main(what_plot, color_scale, figsize):
     elif what_plot == 'figs':
         figs(n, figsize)
         plt.show()
+    else:
+        print('Argument %s unknown, exiting ...' % (what_plot))
+        sys.exit()
 
 # ______________________________________________________________________________________________________________________
 if __name__ == '__main__':
