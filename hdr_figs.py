@@ -458,10 +458,14 @@ def hrd(n, color_scale, figsize):
         # Plot a line with the slope of the log(Teff) - log(g) degeneracy
         # as computed in ew_ldr.py
         if plot_degeneracy:
-            degeneracy = ax.axline((3.70, 2.5), slope=21, color='C4', linestyle=':', linewidth=2)
+            slope, nsig = 21, 3
+            lt1, lg1 = 3.82, 0.5
+            lt2 = lt1 + nsig * np.mean(n.dlogtes)
+            lg2 = slope * (lt2 - lt1) + lg1
+            degeneracy, = ax.plot((lt1, lt2), (lg1, lg2), color='C4', linestyle=':', linewidth=3)
             lines.append(degeneracy)
-            label_texts.append('Degeneracy')
-            label_visibilities.append(True)
+            label_texts.append('Degeneracy' + r' $(3\sigma)$')
+            label_visibilities.append(True)q
             labels.append(degeneracy)
 
 
