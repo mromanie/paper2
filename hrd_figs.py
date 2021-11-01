@@ -485,16 +485,16 @@ def hrd(n, color_scale, figsize):
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
           'costa': n.loggs_costa, 'genovali': n.loggs_genovali, 'luck': n.loggs_luck, 'anderson0': n.loggs_anderson0,
           'anderson05': n.loggs_anderson05, 'anderson09': n.loggs_anderson09, 'anderson05mw': n.loggs_anderson05mw}
-    degeneracy = {'slope': 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 0.5}
-    plot(ax11, gg, degeneracy, color_scale=color_scale)
+    degg = {'slope': 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 0.5}
+    plot(ax11, gg, degg, color_scale=color_scale)
     #
     ll = {'rom': n.loglis, 'drom': n.dloglis, 'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
           'rip': n.loglis_rip, 'riess': n.loglis_riess, 'car': n.loglis_car, 'chiosi': n.loglis_chiosi,
           'costa': n.loglis_costa, 'genovali': n.loglis_genovali, 'luck': n.loglis_luck,
           'anderson0': n.loglis_anderson0, 'anderson05': n.loglis_anderson05, 'anderson09': n.loglis_anderson09,
           'anderson05mw': n.loglis_anderson05mw}
-    degeneracy = {'slope': 4 - 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 4.5}
-    plot(ax21, ll, degeneracy, color_scale=color_scale)
+    degl = {'slope': 4 - 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 4.5}
+    plot(ax21, ll, degl, color_scale=color_scale)
 
     
 def figs(n, figsize):
