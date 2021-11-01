@@ -313,7 +313,7 @@ def hrd(n, color_scale, figsize):
     ax21.set_xlim(3.85, 3.6)
     ax21.set_ylim(1.6, 4.9)
 
-    def plot(ax, yys, color_scale='periods', plot_degeneracy=False):
+    def plot(ax, yys, degeneracy, color_scale='periods'):
         if color_scale == 'periods':
             col = n.lgP
             col_rip = n.lgP_rip
@@ -457,16 +457,15 @@ def hrd(n, color_scale, figsize):
 
         # Plot a line with the slope of the log(Teff) - log(g) degeneracy
         # as computed in ew_ldr.py
-        if plot_degeneracy:
-            slope, nsig = 21, 3
-            lt1, lg1 = 3.82, 0.5
-            lt2 = lt1 + nsig * np.mean(n.dlogtes)
-            lg2 = slope * (lt2 - lt1) + lg1
-            degeneracy, = ax.plot((lt1, lt2), (lg1, lg2), color='C4', linestyle=':', linewidth=3)
-            lines.append(degeneracy)
-            label_texts.append('Degeneracy' + r' $(3\sigma)$')
-            label_visibilities.append(True)
-            labels.append(degeneracy)
+        slope, nsig = degeneracy['slope'], degeneracy['nsig']
+        xd1, yd1 = degeneracy['xd1'], degeneracy['yd1']
+        xd2 = xd1 + nsig * np.mean(n.dlogtes)
+        yd2 = slope * (xd2 - xd1) + yd1
+        deg_line, = ax.plot((xd1, xd2), (yd1, yd2), color='C4', linestyle=':', linewidth=3)
+        lines.append(deg_line)
+        label_texts.append('Degeneracy (' + str(nsig) + r' $\sigma)$')
+        label_visibilities.append(True)
+        labels.append(deg_line)
 
 
         # Add the legend ...
@@ -486,14 +485,16 @@ def hrd(n, color_scale, figsize):
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
           'costa': n.loggs_costa, 'genovali': n.loggs_genovali, 'luck': n.loggs_luck, 'anderson0': n.loggs_anderson0,
           'anderson05': n.loggs_anderson05, 'anderson09': n.loggs_anderson09, 'anderson05mw': n.loggs_anderson05mw}
-    plot(ax11, gg, color_scale=color_scale, plot_degeneracy=True)
+    degeneracy = {'slope': 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 0.5}
+    plot(ax11, gg, degeneracy, color_scale=color_scale)
     #
     ll = {'rom': n.loglis, 'drom': n.dloglis, 'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
           'rip': n.loglis_rip, 'riess': n.loglis_riess, 'car': n.loglis_car, 'chiosi': n.loglis_chiosi,
           'costa': n.loglis_costa, 'genovali': n.loglis_genovali, 'luck': n.loglis_luck,
           'anderson0': n.loglis_anderson0, 'anderson05': n.loglis_anderson05, 'anderson09': n.loglis_anderson09,
           'anderson05mw': n.loglis_anderson05mw}
-    plot(ax21, ll, color_scale)
+    degeneracy = {'slope': 4 - 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 4.5}
+    plot(ax21, ll, degeneracy, color_scale=color_scale)
 
     
 def figs(n, figsize):
