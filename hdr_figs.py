@@ -465,7 +465,7 @@ def hrd(n, color_scale, figsize):
             degeneracy, = ax.plot((lt1, lt2), (lg1, lg2), color='C4', linestyle=':', linewidth=3)
             lines.append(degeneracy)
             label_texts.append('Degeneracy' + r' $(3\sigma)$')
-            label_visibilities.append(True)q
+            label_visibilities.append(True)
             labels.append(degeneracy)
 
 
