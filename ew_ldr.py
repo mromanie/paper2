@@ -1,12 +1,28 @@
 import matplotlib
 
-# matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
-
 from astropy.io import ascii
 import numpy as np
 from matplotlib import pyplot as plt
 import sys, importlib, argparse
+from scipy.optimize import curve_fit
+import paper1_figures as p1  # local
+importlib.reload(p1)  # Force relaoding if the module is edited.
 
+# ______________________________________________________________________________________________________________________
+# _______________________________________________ Convenience functions ________________________________________________
+def is_ipython():
+    try:
+        get_ipython
+        return True
+    except:
+        return False
+
+def func_line(x, slope, intercept):
+    """
+    Service function to return a straight line to fit.
+    :return: straight line.
+    """
+    return x * slope + intercept
 
 def deLatex(instring):
     """
@@ -32,6 +48,20 @@ def latex(instring, markups):
 
 
 # ______________________________________________________________________________________________________________________
+def on_pick(event, ids):
+    fig = event.canvas.figure
+    ind = event.ind.data[0]
+    for axx in fig.get_axes():
+        for child in axx.get_children():
+            if isinstance(child, matplotlib.text.Annotation) and not child.keep:
+                child.remove()
+            if isinstance(child, matplotlib.lines.Line2D) and child.get_picker() == True:
+                xx, yy = child.get_xdata(), child.get_ydata()
+        ann = axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red', size=12)
+        ann.keep = False
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+
 
 def read_parameters(infile):
     """
@@ -66,6 +96,8 @@ def read_parameters(infile):
     stellar_parameters = dict()
     stellar_parameters['Fe'] = {'value': Fe, 'error': dFe, 'label': '[Fe/H]'}
     stellar_parameters['Teff'] = {'value': Teff, 'error': dTeff, 'label': 'T_{eff}'}
+    stellar_parameters['logTeff'] = {'value': np.log10(Teff), 'error': np.log10(1 + dTeff / Teff),
+                                     'label': 'log(T_{eff})\ [K]'}
     stellar_parameters['logg'] = {'value': logg, 'error': dlogg, 'label': 'log(g)'}
     stellar_parameters['vturb'] = {'value': vturb, 'error': dvturb, 'label': 'v_{turb}'}
 
@@ -86,8 +118,10 @@ def select_in_common(ids, stellar_parameters, indices_in_common):
     return ids, stellar_parameters
 
 
-def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize):
+def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
     fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21)) = plt.subplots(nrows=3, ncols=2, figsize=figsize)
+    if not in_ipython:
+        p1.set_window_position(fig, 0, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
     title = latex(ylab, '\mathrm')
     fig.canvas.set_window_title('')
@@ -146,30 +180,57 @@ def plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, f
     ax21.set_xlim(left=np.min(bins), right=np.max(bins))
     ax21.legend(loc='upper left')
 
-    index_picked = []
-
-    def on_pick(event, figg):
-        ind = event.ind.data[0]
-        for axx in figg.get_axes():
-            for child in axx.get_children():
-                if isinstance(child, matplotlib.text.Annotation):
-                    child.remove()
-                if isinstance(child, matplotlib.lines.Line2D) and child.get_picker() == True:
-                    xx, yy = child.get_xdata(), child.get_ydata()
-            axx.annotate(ids[ind], (xx[ind], yy[ind]), color='red', size=12)
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-
-    fig.canvas.mpl_connect('pick_event', lambda x: on_pick(x, fig))
-
-    plt.show()
+    fig.canvas.mpl_connect('pick_event', lambda x: on_pick(x, ids))
 
 
-def main(what_plot, figsize):
+def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
+    # '''
+    fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21)) = plt.subplots(nrows=3, ncols=2, figsize=figsize)
+    if not in_ipython:
+        p1.set_window_position(fig, 1000, 20)
+    fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
+    title = latex(ylab, '\mathrm')
+    fig.canvas.set_window_title('')
+    fig.suptitle(title)
+
+    def plotd(ax, xx_what, yy_what):
+        xx = stellar_parameters_1[xx_what]['value'] - stellar_parameters_2[xx_what]['value']
+        yy = stellar_parameters_1[yy_what]['value'] - stellar_parameters_2[yy_what]['value']
+        ax.plot(xx, yy, linestyle='', marker='o', markersize=12, pickradius=5, picker=True)
+        ax.set_xlabel(r'$\Delta$' + latex(stellar_parameters_1[xx_what]['label'], '\mathrm'))
+        ax.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1[yy_what]['label'], '\mathrm'))
+        #
+        # Linear regression on the data ...
+        popt, pcov = curve_fit(func_line, xx, yy, (0, np.mean(yy)))
+        slope = popt[0]
+        ax.axline((np.mean(xx), np.mean(yy)), slope=slope, color='C4', linewidth=2)
+        #
+        if slope < 0.01:
+            fmt = "{:.4f}"
+        else:
+            fmt = "{:.1f}"
+        ann = ax.annotate('slope=' + p1.latex(fmt.format(popt[0]), '\mathrm'), (0.05, 0.9), xycoords='axes fraction')
+        ann.keep = True
+
+    plotd(ax00, 'logTeff', 'logg')
+    plotd(ax01, 'logTeff', 'vturb')
+    plotd(ax10, 'Teff', 'Fe')
+    plotd(ax11, 'logg', 'vturb')
+    plotd(ax20, 'logg', 'Fe')
+    plotd(ax21, 'vturb', 'Fe')
+
+    fig.canvas.mpl_connect('pick_event', lambda x: on_pick(x, ids))
+
+
+def main(what_plot, figsize, plot_degeneracy=False):
     """
     Read the input files with the stellar parameters, match them, make the plots for the user to
     select one star from ... return the id of the selection
     """
+
+    in_ipython = is_ipython()
+    if not in_ipython:
+        matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 
     # Martino Teff fixed from our LDR
     ids_ldr, stellar_parameters_ldr = read_parameters('SH0ES_atmparam_LDR_alllines_all.dat')
@@ -199,13 +260,14 @@ def main(what_plot, figsize):
         stellar_parameters_2 = stellar_parameters_ldrProx
         xlab = xlab0 + 'EW'
         ylab = 'EW - LDR_{Proxauf}'
-
     else:
-        print('Argument %s unknown, exiting ...' % (what_plot))
+        print('Argument %s unknown, exiting ...' % what_plot)
         sys.exit()
 
-    plot_and_pick(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize)
-
+    compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython)
+    if plot_degeneracy:
+        degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython)
+    plt.show()
 
 # ______________________________________________________________________________________________________________________
 
@@ -213,6 +275,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('what_plot', help='What plot to plot', type=str)
     parser.add_argument('--figsize', default=[12, 12], help='Size of the figure', nargs=2, type=int)
+    parser.add_argument('--plot_degeneracy', default=False, action='store_true')
     args = parser.parse_args()
 
-    main(args.what_plot, tuple(args.figsize))
+    main(args.what_plot, tuple(args.figsize), args.plot_degeneracy)
