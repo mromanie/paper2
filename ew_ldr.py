@@ -10,45 +10,10 @@ importlib.reload(p1)  # Force relaoding if the module is edited.
 
 # ______________________________________________________________________________________________________________________
 # _______________________________________________ Convenience functions ________________________________________________
-def is_ipython():
-    try:
-        get_ipython
-        return True
-    except:
-        return False
-
-def func_line(x, slope, intercept):
-    """
-    Service function to return a straight line to fit.
-    :return: straight line.
-    """
-    return x * slope + intercept
-
-def deLatex(instring):
-    """
-    Remove the LaTex markups from the input string
-    :param instring: input string to be de-LaTeX-ed.
-    :return: de-LaTex-ed string.
-    """
-    return instring.replace('_', '').replace('{', '').replace('}', '').replace('$', '').replace('\\', '')
-
-
-def latex(instring, markups):
-    """
-    Wrap the instring with LaTex markup.
-    :param instring: input string to be LaTex-ed
-    :param markups: LaTex markups to be inserted
-    :return: LaTex-ed string
-    """
-    out = '$'
-    for n, i in enumerate(markups.split('\\')[1:]):
-        out += '\\' + i + '{'
-    out += instring + '}' * (n + 1) + '$'
-    return out
 
 
 # ______________________________________________________________________________________________________________________
-def on_pick(event, ids):
+def on_pick_mark_dot(event, ids):
     fig = event.canvas.figure
     ind = event.ind.data[0]
     for axx in fig.get_axes():
@@ -104,26 +69,13 @@ def read_parameters(infile):
     return ids, stellar_parameters
 
 
-def select_in_common(ids, stellar_parameters, indices_in_common):
-    """
-    Select the stars in common
-    :return:
-    """
-    ids = ids[indices_in_common]
-
-    for key in stellar_parameters.keys():
-        stellar_parameters[key]['value'] = stellar_parameters[key]['value'][indices_in_common]
-        stellar_parameters[key]['error'] = stellar_parameters[key]['error'][indices_in_common]
-
-    return ids, stellar_parameters
-
-
+# ______________________________________________________________________________________________________________________
 def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
     fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21)) = plt.subplots(nrows=3, ncols=2, figsize=figsize)
     if not in_ipython:
         p1.set_window_position(fig, 0, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
-    title = latex(ylab, '\mathrm')
+    title = p1.latex(ylab, '\mathrm')
     fig.canvas.set_window_title('')
     fig.suptitle(title)
     # https://stackoverflow.com/questions/7449585/how-do-you-set-the-absolute-position-of-figure-windows-with-matplotlib
@@ -133,8 +85,8 @@ def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize
     line00, = ax00.plot(stellar_parameters_1['Teff']['value'],
                         stellar_parameters_1['Teff']['value'] - stellar_parameters_2['Teff']['value'],
                         marker='o', linestyle='', markersize=10, pickradius=5, picker=True)
-    ax00.set_xlabel(latex(stellar_parameters_1['Teff']['label'], '\mathrm') + ' ' + latex(xlab, '\mathrm'))
-    ax00.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['Teff']['label'], '\mathrm'))
+    ax00.set_xlabel(p1.latex(stellar_parameters_1['Teff']['label'], '\mathrm') + ' ' + p1.latex(xlab, '\mathrm'))
+    ax00.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1['Teff']['label'], '\mathrm'))
     color, marker, = line00.get_color(), line00.get_marker()
     linestyle, markersize = line00.get_linestyle(), line00.get_markersize()
     #
@@ -142,22 +94,22 @@ def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize
                         stellar_parameters_1['Fe']['value'] - stellar_parameters_2['Fe']['value'],
                         marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5,
                         picker=True)
-    ax01.set_xlabel(latex(stellar_parameters_1['Fe']['label'], '\mathrm') + ' ' + latex(xlab, '\mathrm'))
-    ax01.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
+    ax01.set_xlabel(p1.latex(stellar_parameters_1['Fe']['label'], '\mathrm') + ' ' + p1.latex(xlab, '\mathrm'))
+    ax01.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
     #
     line10, = ax10.plot(stellar_parameters_1['logg']['value'],
                         stellar_parameters_1['logg']['value'] - stellar_parameters_2['logg']['value'],
                         marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5,
                         picker=True)
-    ax10.set_xlabel(latex(stellar_parameters_1['logg']['label'], '\mathrm') + ' ' + latex(xlab, '\mathrm'))
-    ax10.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['logg']['label'], '\mathrm'))
+    ax10.set_xlabel(p1.latex(stellar_parameters_1['logg']['label'], '\mathrm') + ' ' + p1.latex(xlab, '\mathrm'))
+    ax10.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1['logg']['label'], '\mathrm'))
     #
     line11, = ax11.plot(stellar_parameters_1['vturb']['value'],
                         stellar_parameters_1['vturb']['value'] - stellar_parameters_2['vturb']['value'],
                         marker=marker, linestyle=linestyle, color=color, markersize=markersize, pickradius=5,
                         picker=True)
-    ax11.set_xlabel(latex(stellar_parameters_1['vturb']['label'], '\mathrm') + ' ' + latex(xlab, '\mathrm'))
-    ax11.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['vturb']['label'], '\mathrm'))
+    ax11.set_xlabel(p1.latex(stellar_parameters_1['vturb']['label'], '\mathrm') + ' ' + p1.latex(xlab, '\mathrm'))
+    ax11.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1['vturb']['label'], '\mathrm'))
     #
     dTeff = stellar_parameters_1['Teff']['value'] - stellar_parameters_2['Teff']['value']
     dFe = stellar_parameters_1['Fe']['value'] - stellar_parameters_2['Fe']['value']
@@ -166,21 +118,21 @@ def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize
                         picker=True)
     ax20.axline((np.mean(dTeff), np.mean(dFe)), slope=0.07 / 100, label='0.07 dex / 100 K (Rom+2008)', color='C3',
                 zorder=5)
-    ax20.set_xlabel(r'$\Delta$' + latex(stellar_parameters_1['Teff']['label'], '\mathrm'))
-    ax20.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
+    ax20.set_xlabel(r'$\Delta$' + p1.latex(stellar_parameters_1['Teff']['label'], '\mathrm'))
+    ax20.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
     ax20.legend()
     #
     bins = np.arange(-0.9, 0.2, 0.1)
     ax21.hist(stellar_parameters_1['Fe']['value'], histtype=u'step', linewidth=3,
-              label=latex(ylab.split('-')[0], '\mathrm'))
+              label=p1.latex(ylab.split('-')[0], '\mathrm'))
     ax21.hist(stellar_parameters_2['Fe']['value'], bins=bins, histtype=u'step', linewidth=3,
-              label=latex(ylab.split('-')[-1], '\mathrm'))
-    ax21.set_xlabel(latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
+              label=p1.latex(ylab.split('-')[-1], '\mathrm'))
+    ax21.set_xlabel(p1.latex(stellar_parameters_1['Fe']['label'], '\mathrm'))
     ax21.set_ylabel('Number')
     ax21.set_xlim(left=np.min(bins), right=np.max(bins))
     ax21.legend(loc='upper left')
 
-    fig.canvas.mpl_connect('pick_event', lambda x: on_pick(x, ids))
+    fig.canvas.mpl_connect('pick_event', lambda x: on_pick_mark_dot(x, ids))
 
 
 def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
@@ -189,7 +141,7 @@ def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figs
     if not in_ipython:
         p1.set_window_position(fig, 1000, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
-    title = latex(ylab, '\mathrm')
+    title = p1.latex(ylab, '\mathrm')
     fig.canvas.set_window_title('')
     fig.suptitle(title)
 
@@ -197,11 +149,11 @@ def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figs
         xx = stellar_parameters_1[xx_what]['value'] - stellar_parameters_2[xx_what]['value']
         yy = stellar_parameters_1[yy_what]['value'] - stellar_parameters_2[yy_what]['value']
         ax.plot(xx, yy, linestyle='', marker='o', markersize=12, pickradius=5, picker=True)
-        ax.set_xlabel(r'$\Delta$' + latex(stellar_parameters_1[xx_what]['label'], '\mathrm'))
-        ax.set_ylabel(r'$\Delta$' + latex(stellar_parameters_1[yy_what]['label'], '\mathrm'))
+        ax.set_xlabel(r'$\Delta$' + p1.latex(stellar_parameters_1[xx_what]['label'], '\mathrm'))
+        ax.set_ylabel(r'$\Delta$' + p1.latex(stellar_parameters_1[yy_what]['label'], '\mathrm'))
         #
         # Linear regression on the data ...
-        popt, pcov = curve_fit(func_line, xx, yy, (0, np.mean(yy)))
+        popt, pcov = curve_fit(p1.func_line, xx, yy, (0, np.mean(yy)))
         slope = popt[0]
         ax.axline((np.mean(xx), np.mean(yy)), slope=slope, color='C4', linewidth=2)
         #
@@ -219,16 +171,15 @@ def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figs
     plotd(ax20, 'logg', 'Fe')
     plotd(ax21, 'vturb', 'Fe')
 
-    fig.canvas.mpl_connect('pick_event', lambda x: on_pick(x, ids))
+    fig.canvas.mpl_connect('pick_event', lambda x: on_pick_mark_dot(x, ids))
 
 
-def main(what_plot, figsize, plot_degeneracy=False):
+def main(what_plot, figsize=(10, 10), plot_degeneracy=False):
     """
     Read the input files with the stellar parameters, match them, make the plots for the user to
     select one star from ... return the id of the selection
     """
-
-    in_ipython = is_ipython()
+    in_ipython = p1.is_ipython()
     if not in_ipython:
         matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 

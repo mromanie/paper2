@@ -209,6 +209,14 @@ def read_r08(mc):
 
 # ______________________________________________________________________________________________________________________
 # _______________________________________________ Convenience functions ________________________________________________
+def is_ipython():
+    try:
+        get_ipython
+        return True
+    except:
+        return False
+
+
 def tab2arr(tab, col):
     if np.ma.is_masked(tab[col]):
         # The column read from the file is Masked ... replace the missing values with NaN
@@ -860,7 +868,6 @@ def vsP(what, orientation='vertical'):
         fig1.subplots_adjust(left=0.065, right=0.975, top=0.975, bottom=0.125)
         gs1 = fig1.add_gridspec(nrows=1, ncols=3, wspace=0.075)
         yticks = False
-        plot_regression = False
     #
     fig1.canvas.set_window_title('Figure 1: ' + window_title)
     ax11 = fig1.add_subplot(gs1[0])

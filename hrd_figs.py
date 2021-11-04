@@ -3,7 +3,6 @@ import numpy as np
 from astropy.io import ascii
 from astropy import constants as const
 
-#matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.spatial import ConvexHull
@@ -37,7 +36,7 @@ def animate_legend(leg, label_visibilities, lines):
     return lined
 
 
-def on_pick(event, ax, lined):
+def on_pick_toggle_legend(event, ax, lined):
     # On the pick event, find the original line corresponding to the legend
     # proxy line, and toggle its visibility.
     legtext = event.artist
@@ -294,9 +293,10 @@ def read(what):
 # ______________________________________________________________________________________________________________________
 
 mode0_rip, Y_car0, mode0_luck = 'DCEP_F', 0.25, 'F'
-def hrd(n, color_scale, figsize):
+def hrd(n, color_scale, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
-    # p1.set_window_position(fig1, 0, 20)
+    if not in_ipython:
+        p1.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
     ax11.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
@@ -305,7 +305,8 @@ def hrd(n, color_scale, figsize):
     ax11.set_ylim(2.9, -0.25)
     #
     fig2, ax21 = plt.subplots(figsize=figsize)
-    # p1.set_window_position(fig2, 1200, 20)
+    if not in_ipython:
+        p1.set_window_position(fig2, 1200, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
@@ -479,7 +480,7 @@ def hrd(n, color_scale, figsize):
         cb.ax.set_ylabel(col_label)
 
         lined = animate_legend(leg, label_visibilities, lines)
-        ax.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick(event, ax, lined))
+        ax.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax, lined))
 
     gg = {'rom': n.loggs, 'drom': n.dloggs, 'dsm_mw': n.loggs_mw, 'dsm_lmc': n.loggs_lmc, 'dsm_lmcn': n.loggs_lmcn,
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
@@ -497,9 +498,10 @@ def hrd(n, color_scale, figsize):
     plot(ax21, ll, degl, color_scale=color_scale)
 
     
-def figs(n, figsize):
+def figs(n, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig1, 0, 20)
+    if not in_ipython:
+        p1.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
     ax11.set_xlabel(p1.latex(n.logg_label, '\mathrm'))
@@ -516,7 +518,8 @@ def figs(n, figsize):
     ax11.legend(loc='upper left')
 
     fig2, ax21 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig2, 1500, 20)
+    if not in_ipython:
+        p1.set_window_position(fig2, 1500, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel('log(P) [days]')
@@ -554,11 +557,12 @@ def figs(n, figsize):
     leg21 = ax21.legend(labels21, label_texts21, fontsize=10, loc='lower left',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
     lined21 = animate_legend(leg21, label_visibilities21, lines21)
-    ax21.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick(event, ax21, lined21))
+    ax21.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax21, lined21))
     
     
     fig3, ax31 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig3, 750, 20)
+    if not in_ipython:
+        p1.set_window_position(fig3, 750, 20)
     fig3.canvas.set_window_title('Figure 3: ' + n.window_title)
     # fig3.subplots_adjust(top=0.95, bottom=0.2)
     ax31.set_xlabel('Phase')
@@ -589,11 +593,12 @@ def figs(n, figsize):
     leg31 = ax31.legend(labels31, label_texts31, fontsize=10, loc='lower left',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
     lined31 = animate_legend(leg31, label_visibilities31, lines31)
-    ax31.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick(event, ax31, lined31))
+    ax31.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax31, lined31))
         
     
     fig4, ax41 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig4, 2250, 20)
+    if not in_ipython:
+        p1.set_window_position(fig4, 2250, 20)
     fig4.canvas.set_window_title('Figure 4: ' + n.window_title)
     # fig4.subplots_adjust(top=0.95, bottom=0.2)
     ax41.set_xlabel('Phase')
@@ -625,10 +630,11 @@ def figs(n, figsize):
     leg41 = ax41.legend(labels41, label_texts41, fontsize=10, loc='lower left',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
     lined41 = animate_legend(leg41, label_visibilities41, lines41)
-    ax41.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick(event, ax41, lined41))
+    ax41.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax41, lined41))
     
     fig5, ax51 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig5, 2250, 20)
+    if not in_ipython:
+        p1.set_window_position(fig5, 2250, 20)
     fig5.canvas.set_window_title('Figure 5: ' + n.window_title)
     # fig5.subplots_adjust(top=0.95, bottom=0.2)
     ax51.set_xlabel('log(P) [days]')
@@ -666,11 +672,12 @@ def figs(n, figsize):
     leg51 = ax51.legend(labels51, label_texts51, fontsize=10, loc='lower left',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
     lined51 = animate_legend(leg51, label_visibilities51, lines51)
-    ax51.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick(event, ax51, lined51))
+    ax51.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax51, lined51))
     
 
     fig6, ax61 = plt.subplots(figsize=figsize)
-#     p1.set_window_position(fig6, 2250, 20)
+    if not in_ipython:
+        p1.set_window_position(fig6, 2250, 20)
     fig6.canvas.set_window_title('Figure 6: ' + n.window_title)
     # fig6.subplots_adjust(top=0.95, bottom=0.2)
     ax61.set_xlabel('log(P) [days]')
@@ -692,6 +699,10 @@ def figs(n, figsize):
 # ______________________________________________________________________________________________________________________
 def main(what_plot, color_scale, figsize):
 
+    in_ipython = p1.is_ipython()
+    if not in_ipython:
+        matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
+
     # Read the inputs from file
     p1.ids_mag, p1.logPs, p1.mags, p1.emags, geo, pl_slope, pl_intercept, pl_scatter = p1.read_riess()
     p1.stellar_parameters_r08, p1.intrinsic_parameters_r08 = p1.read_r08('LMC')  # R08 from the paper
@@ -709,10 +720,10 @@ def main(what_plot, color_scale, figsize):
     n = SimpleNamespace(**tmp)
 
     if what_plot == 'hrd':
-        hrd(n, color_scale, figsize)
+        hrd(n, color_scale, figsize, in_ipython)
         plt.show()
     elif what_plot == 'figs':
-        figs(n, figsize)
+        figs(n, figsize, in_ipython)
         plt.show()
     else:
         print('Argument %s unknown, exiting ...' % (what_plot))
