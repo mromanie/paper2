@@ -7,11 +7,11 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.spatial import ConvexHull
 from matplotlib.collections import LineCollection
-from pylab import MaxNLocator
+# from pylab import MaxNLocator
 import sys, argparse, importlib
 from types import SimpleNamespace
 import paper1_figures as p1  # local
-importlib.reload(p1)  # Force relaoding if the module is edited.
+importlib.reload(p1)  # Force reloading if the module is edited.
 
 
 # ______________________________________________________________________________________________________________________
@@ -135,7 +135,7 @@ def draw_hull(ax, logtes, loggs, dots=True, **kwargs):
         ax.plot(logtes, loggs, marker='o', linestyle='', color=color)
     return collection
 
-def read(what):
+def read_all(what):
     ids, tes, dtes, lgP, phases, te_label, window_title = p1.select(what, 'Teff')
     ___, logtes, dlogtes, ___, ___, logte_label, ___ = p1.select(what, 'logTeff')
     ___, loggs, dloggs, ___, ___, logg_label, ___ = p1.select(what, 'logg')
@@ -716,7 +716,7 @@ def main(what_plot, color_scale, figsize):
     # what = 'Tot20all'  # SH0ES sample analysed by Martino w/ exc balance Teff, full Genovali linelist ### Preferred
     what = 'Tot20allRT20M'  # SH0ES2020 + R08 samples analysed by Martino w/ exc balance Teff, full Genovali linelist
 
-    tmp = read(what)
+    tmp = read_all(what)
     n = SimpleNamespace(**tmp)
 
     if what_plot == 'hrd':

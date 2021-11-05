@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import sys, importlib, argparse
 from scipy.optimize import curve_fit
 import paper1_figures as p1  # local
-importlib.reload(p1)  # Force relaoding if the module is edited.
+importlib.reload(p1)  # Force reloading if the module is edited.
 
 # ______________________________________________________________________________________________________________________
 # _______________________________________________ Convenience functions ________________________________________________
