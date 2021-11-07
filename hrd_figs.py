@@ -10,7 +10,7 @@ from matplotlib.collections import LineCollection
 # from pylab import MaxNLocator
 import sys, argparse, importlib
 from types import SimpleNamespace
-import convenience_functions as cf  # local
+import common_functions as cf  # local
 importlib.reload(cf)  # Force reloading if the module is edited.
 
 

@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sys, importlib, argparse
 from scipy.optimize import curve_fit
-import convenience_functions as cf  # local
+import common_functions as cf  # local
 importlib.reload(cf)  # Force reloading if the module is edited.
 
 # ______________________________________________________________________________________________________________________
