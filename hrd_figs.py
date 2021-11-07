@@ -10,8 +10,8 @@ from matplotlib.collections import LineCollection
 # from pylab import MaxNLocator
 import sys, argparse, importlib
 from types import SimpleNamespace
-import paper1_figures as p1  # local
-importlib.reload(p1)  # Force reloading if the module is edited.
+import convenience_functions as cf  # local
+importlib.reload(cf)  # Force reloading if the module is edited.
 
 
 # ______________________________________________________________________________________________________________________
@@ -87,9 +87,9 @@ def compute_logg(logl, logte, mass):
 
 def read_desomma(infile):
     tab = ascii.read(infile, delimiter=';')
-    masss = p1.tab2arr(tab, 'M/Mo')
-    logls = p1.tab2arr(tab, 'log(L/Lo)')
-    logtes = p1.tab2arr(tab, 'logTe')
+    masss = cf.tab2arr(tab, 'M/Mo')
+    logls = cf.tab2arr(tab, 'log(L/Lo)')
+    logtes = cf.tab2arr(tab, 'logTe')
 
     logggs = compute_logg(logls, logtes, masss)
     return logtes, logggs
@@ -114,9 +114,9 @@ def read_anderson(gal, omega_ini=0):
 
     tab = ascii.read('Files/Anderson_2016_AA_591_8_Tab' + tt + '.txt', data_start=data_start, data_end=data_end)
 
-    masss = np.append(p1.tab2arr(tab, 'M_in'), p1.tab2arr(tab, 'M_in'))
-    logls = np.append(p1.tab2arr(tab, 'log(L_in)'), p1.tab2arr(tab, 'log(L_out)'))
-    logtes = np.append(p1.tab2arr(tab, 'log(Teff_in)'), p1.tab2arr(tab, 'log(Teff_out)'))
+    masss = np.append(cf.tab2arr(tab, 'M_in'), cf.tab2arr(tab, 'M_in'))
+    logls = np.append(cf.tab2arr(tab, 'log(L_in)'), cf.tab2arr(tab, 'log(L_out)'))
+    logtes = np.append(cf.tab2arr(tab, 'log(Teff_in)'), cf.tab2arr(tab, 'log(Teff_out)'))
     logggs = compute_logg(logls, logtes, masss)
 
     return logtes, logggs
@@ -136,9 +136,9 @@ def draw_hull(ax, logtes, loggs, dots=True, **kwargs):
     return collection
 
 def read_all(what):
-    ids, tes, dtes, lgP, phases, te_label, window_title = p1.select(what, 'Teff')
-    ___, logtes, dlogtes, ___, ___, logte_label, ___ = p1.select(what, 'logTeff')
-    ___, loggs, dloggs, ___, ___, logg_label, ___ = p1.select(what, 'logg')
+    ids, tes, dtes, lgP, phases, te_label, window_title = cf.select(what, 'Teff')
+    ___, logtes, dlogtes, ___, ___, logte_label, ___ = cf.select(what, 'logTeff')
+    ___, loggs, dloggs, ___, ___, logg_label, ___ = cf.select(what, 'logg')
     loglis, dloglis = compute_logli(loggs, logtes, dlogg=dloggs, dlogte=dlogtes)
     loggfs, dloggfs = compute_loggf(loggs, logtes, dlogg=dloggs, dlogte=dlogtes)
 
@@ -172,9 +172,9 @@ def read_all(what):
 
     # Theoretical instability strip
     tab = ascii.read('Files/Carini_2014_AA_561_110_Tab1.txt')
-    Z_car, Y_car = p1.tab2arr(tab, 'Z'), p1.tab2arr(tab, 'Y')
-    masss_car, logls_car = p1.tab2arr(tab, 'M/Mo'), p1.tab2arr(tab, 'log_L/Lo')
-    logtes_fbe_car, logtes_fre_car = np.log10(p1.tab2arr(tab, 'Te(FBE)')), np.log10(p1.tab2arr(tab, 'Te(FRE)'))
+    Z_car, Y_car = cf.tab2arr(tab, 'Z'), cf.tab2arr(tab, 'Y')
+    masss_car, logls_car = cf.tab2arr(tab, 'M/Mo'), cf.tab2arr(tab, 'log_L/Lo')
+    logtes_fbe_car, logtes_fre_car = np.log10(cf.tab2arr(tab, 'Te(FBE)')), np.log10(cf.tab2arr(tab, 'Te(FRE)'))
     loggs_fbe_car = compute_logg(logls_car, logtes_fbe_car, masss_car)
     loggs_fre_car = compute_logg(logls_car, logtes_fre_car, masss_car)
     loglis_fbe_car, ___ = compute_logli(loggs_fbe_car, logtes_fbe_car)
@@ -186,8 +186,8 @@ def read_all(what):
 
     # Theoretical instability strip
     tab = ascii.read('Files/Chiosi_1993_ApJS_86_541_Tab8.txt')
-    masss_chiosi, logls_chiosi = p1.tab2arr(tab, 'M/Mo'), p1.tab2arr(tab, 'log(L/Lo)')
-    logtes_fbe_chiosi, logtes_fre_chiosi = p1.tab2arr(tab, 'log(Teff_blue)'), p1.tab2arr(tab, 'log(Teff_red)')
+    masss_chiosi, logls_chiosi = cf.tab2arr(tab, 'M/Mo'), cf.tab2arr(tab, 'log(L/Lo)')
+    logtes_fbe_chiosi, logtes_fre_chiosi = cf.tab2arr(tab, 'log(Teff_blue)'), cf.tab2arr(tab, 'log(Teff_red)')
     #
     loggs_fbe_chiosi = compute_logg(logls_chiosi, logtes_fbe_chiosi, masss_chiosi)
     loggs_fre_chiosi = compute_logg(logls_chiosi, logtes_fre_chiosi, masss_chiosi)
@@ -201,20 +201,20 @@ def read_all(what):
 
     # MW Cepheids
     tab = ascii.read('Files/Ripepi_2021_MNRAS_Tab2.txt', fast_reader=False)
-    ids_rip = p1.tab2arr(tab, 'ID')
+    ids_rip = cf.tab2arr(tab, 'ID')
     for ii in np.arange(1, len(ids_rip)):
         if ids_rip[ii] == '---':
             ids_rip[ii] = ids_rip[ii-1]
-    phases_rip = p1.tab2arr(tab, 'phase')
-    loggs_rip = p1.tab2arr(tab, 'logg')
-    logtes_rip = np.log10(p1.tab2arr(tab, 'Teff'))
+    phases_rip = cf.tab2arr(tab, 'phase')
+    loggs_rip = cf.tab2arr(tab, 'logg')
+    logtes_rip = np.log10(cf.tab2arr(tab, 'Teff'))
     loglis_rip, ___ = compute_logli(loggs_rip, logtes_rip)
     loggfs_rip, ___ = compute_loggf(loggs_rip, logtes_rip)
     #
     tab = ascii.read('Files/Ripepi_2021_MNRAS_Tab4.txt', fast_reader=False)
-    stars_tmp = np.char.replace(p1.tab2arr(tab, 'Star'), '_', '')
-    modes_tmp = p1.tab2arr(tab, 'Mode')
-    lgP_tmp = np.log10(p1.tab2arr(tab, 'P'))
+    stars_tmp = np.char.replace(cf.tab2arr(tab, 'Star'), '_', '')
+    modes_tmp = cf.tab2arr(tab, 'Mode')
+    lgP_tmp = np.log10(cf.tab2arr(tab, 'P'))
     #
     modes_rip = np.chararray(len(ids_rip), itemsize=10, unicode=True)
     lgP_rip = np.zeros(len(ids_rip))
@@ -225,29 +225,29 @@ def read_all(what):
 
     # Stars from Riess et al (2018). These are not Cepheids, but field stars for GAIA use.
     tab = ascii.read('Files/Riess_2018_ApJ_855_136_Tab2.txt')
-    loggs_riess = p1.tab2arr(tab, 'Logg')
+    loggs_riess = cf.tab2arr(tab, 'Logg')
     logtes_riess = np.log10(np.array(tab['T_eff']))
     loglis_riess, ___ = compute_logli(loggs_riess, logtes_riess)
 
     # Cepheids in LMC cluster NGC1866
     tab = ascii.read('Files/Costa_2019_AA_631_A128_Tab1.txt')
-    masss_costa = p1.tab2arr(tab, 'Mass_[Mo]')
-    logls_costa = p1.tab2arr(tab, 'logL_[Lo]')
-    logtes_costa = np.log10(p1.tab2arr(tab, 'Teff_[K]'))
+    masss_costa = cf.tab2arr(tab, 'Mass_[Mo]')
+    logls_costa = cf.tab2arr(tab, 'logL_[Lo]')
+    logtes_costa = np.log10(cf.tab2arr(tab, 'Teff_[K]'))
     loggs_costa = compute_logg(logls_costa, logtes_costa, masss_costa)
     loglis_costa, ___ = compute_logli(loggs_costa, logtes_costa)
 
     # MW Cepheids
     tab = ascii.read('Files/Genovali_2014_AA_566_A37_Tab1.txt')
-    names_genovali = p1.tab2arr(tab, 'Name')
-    loggs_genovali = p1.tab2arr(tab, 'logg')
-    logtes_genovali = np.log10(p1.tab2arr(tab, 'Teff'))
+    names_genovali = cf.tab2arr(tab, 'Name')
+    loggs_genovali = cf.tab2arr(tab, 'logg')
+    logtes_genovali = np.log10(cf.tab2arr(tab, 'Teff'))
     loglis_genovali, ___ = compute_logli(loggs_genovali,logtes_genovali)
     #
     tab = ascii.read('Files/Genovali_2014_AA_566_A37_Tab3.txt')
-    names_tmp = p1.tab2arr(tab, 'Name')
-    types_tmp = p1.tab2arr(tab, 'Type')
-    lgP_tmp = p1.tab2arr(tab, 'log(P)')
+    names_tmp = cf.tab2arr(tab, 'Name')
+    types_tmp = cf.tab2arr(tab, 'Type')
+    lgP_tmp = cf.tab2arr(tab, 'log(P)')
     #
     types_genovali = np.chararray(len(names_genovali), itemsize=10, unicode=True)
     lgP_genovali = np.empty(len(names_genovali))
@@ -261,19 +261,19 @@ def read_all(what):
         
         # MW Cepheids
     tab = ascii.read('Files/Luck_2018_AJ_156_4_Tab3.txt')
-    names_luck = p1.tab2arr(tab, 'Name')
-    loggs_luck = p1.tab2arr(tab, 'log(g)')
-    logtes_luck = np.log10(p1.tab2arr(tab, 'Teff'))
-    dlogtes_luck = np.log10(1 + p1.tab2arr(tab, 'e_Teff') / logtes_luck)
-    phases_luck = p1.tab2arr(tab, 'Phase')
+    names_luck = cf.tab2arr(tab, 'Name')
+    loggs_luck = cf.tab2arr(tab, 'log(g)')
+    logtes_luck = np.log10(cf.tab2arr(tab, 'Teff'))
+    dlogtes_luck = np.log10(1 + cf.tab2arr(tab, 'e_Teff') / logtes_luck)
+    phases_luck = cf.tab2arr(tab, 'Phase')
     loglis_luck, ___ = compute_logli(loggs_luck, logtes_luck)
     loggfs_luck, ___ = compute_loggf(loggs_luck, logtes_luck)
     #
     tab = ascii.read('Files/Luck_2018_AJ_156_4_Tab1.txt')
-    names_tmp = np.char.replace(p1.tab2arr(tab, 'Name'), 'V0', 'V')    # Force same naming as in Table 3
-    types_tmp = p1.tab2arr(tab, 'Type')
-    lgP_tmp = np.log10(p1.tab2arr(tab, 'P'))
-    modes_tmp = p1.tab2arr(tab, 'Mode')
+    names_tmp = np.char.replace(cf.tab2arr(tab, 'Name'), 'V0', 'V')    # Force same naming as in Table 3
+    types_tmp = cf.tab2arr(tab, 'Type')
+    lgP_tmp = np.log10(cf.tab2arr(tab, 'P'))
+    modes_tmp = cf.tab2arr(tab, 'Mode')
     #
     types_luck = np.chararray(len(names_luck), itemsize=10, unicode=True)
     modes_luck = np.chararray(len(names_luck), itemsize=2, unicode=True)
@@ -296,20 +296,20 @@ mode0_rip, Y_car0, mode0_luck = 'DCEP_F', 0.25, 'F'
 def hrd(n, color_scale, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig1, 0, 20)
+        cf.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
-    ax11.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
-    ax11.set_ylabel(p1.latex(n.logg_label, '\mathrm'))
+    ax11.set_xlabel(cf.latex(n.logte_label, '\mathrm'))
+    ax11.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
     ax11.set_xlim(3.85, 3.6)
     ax11.set_ylim(2.9, -0.25)
     #
     fig2, ax21 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig2, 1200, 20)
+        cf.set_window_position(fig2, 1200, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
-    ax21.set_xlabel(p1.latex(n.logte_label, '\mathrm'))
+    ax21.set_xlabel(cf.latex(n.logte_label, '\mathrm'))
     ax21.set_ylabel(r'$\mathscr{L} / \mathscr{L}_\odot$')
     ax21.set_xlim(3.85, 3.6)
     ax21.set_ylim(1.6, 4.9)
@@ -501,10 +501,10 @@ def hrd(n, color_scale, figsize, in_ipython):
 def figs(n, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig1, 0, 20)
+        cf.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
-    ax11.set_xlabel(p1.latex(n.logg_label, '\mathrm'))
+    ax11.set_xlabel(cf.latex(n.logg_label, '\mathrm'))
     ax11.set_ylabel('Number')
     ax11.set_yscale('log')
     ___, bins, ___ = ax11.hist(n.loggs, bins=5, zorder=1, color='royalblue', histtype=u'step', linewidth=3,
@@ -519,11 +519,11 @@ def figs(n, figsize, in_ipython):
 
     fig2, ax21 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig2, 1500, 20)
+        cf.set_window_position(fig2, 1500, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel('log(P) [days]')
-    ax21.set_ylabel(p1.latex(n.logg_label, '\mathrm'))
+    ax21.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
         #
     lines21, labels21, label_texts21, label_visibilities21 = [], [], [], []
     #
@@ -562,11 +562,11 @@ def figs(n, figsize, in_ipython):
     
     fig3, ax31 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig3, 750, 20)
+        cf.set_window_position(fig3, 750, 20)
     fig3.canvas.set_window_title('Figure 3: ' + n.window_title)
     # fig3.subplots_adjust(top=0.95, bottom=0.2)
     ax31.set_xlabel('Phase')
-    ax31.set_ylabel(p1.latex(n.logg_label, '\mathrm'))
+    ax31.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
     #
     lines31, labels31, label_texts31, label_visibilities31 = [], [], [], []
     #
@@ -598,11 +598,11 @@ def figs(n, figsize, in_ipython):
     
     fig4, ax41 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig4, 2250, 20)
+        cf.set_window_position(fig4, 2250, 20)
     fig4.canvas.set_window_title('Figure 4: ' + n.window_title)
     # fig4.subplots_adjust(top=0.95, bottom=0.2)
     ax41.set_xlabel('Phase')
-    ax41.set_ylabel(p1.latex(n.logte_label, '\mathrm'))
+    ax41.set_ylabel(cf.latex(n.logte_label, '\mathrm'))
     #
     lines41, labels41, label_texts41, label_visibilities41 = [], [], [], []
     #
@@ -634,7 +634,7 @@ def figs(n, figsize, in_ipython):
     
     fig5, ax51 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig5, 2250, 20)
+        cf.set_window_position(fig5, 2250, 20)
     fig5.canvas.set_window_title('Figure 5: ' + n.window_title)
     # fig5.subplots_adjust(top=0.95, bottom=0.2)
     ax51.set_xlabel('log(P) [days]')
@@ -677,7 +677,7 @@ def figs(n, figsize, in_ipython):
 
     fig6, ax61 = plt.subplots(figsize=figsize)
     if not in_ipython:
-        p1.set_window_position(fig6, 2250, 20)
+        cf.set_window_position(fig6, 2250, 20)
     fig6.canvas.set_window_title('Figure 6: ' + n.window_title)
     # fig6.subplots_adjust(top=0.95, bottom=0.2)
     ax61.set_xlabel('log(P) [days]')
@@ -699,17 +699,17 @@ def figs(n, figsize, in_ipython):
 # ______________________________________________________________________________________________________________________
 def main(what_plot, color_scale, figsize):
 
-    in_ipython = p1.is_ipython()
+    in_ipython = cf.is_ipython()
     if not in_ipython:
         matplotlib.use('Qt5Agg')  # Force a backend that supports specifying the location of the plot window
 
     # Read the inputs from file
-    p1.ids_mag, p1.logPs, p1.mags, p1.emags, geo, pl_slope, pl_intercept, pl_scatter = p1.read_riess()
-    p1.stellar_parameters_r08, p1.intrinsic_parameters_r08 = p1.read_r08('LMC')  # R08 from the paper
+    cf.ids_mag, cf.logPs, cf.mags, cf.emags, geo, pl_slope, pl_intercept, pl_scatter = cf.read_riess()
+    cf.stellar_parameters_r08, cf.intrinsic_parameters_r08 = cf.read_r08('LMC')  # R08 from the paper
     #
-    p1.stellar_parametersTotal_alllines, __, __ = \
-        p1.read_parameters('SH0ES_atmparam_FREETotal_alllines_all.dat')  # Martino exc balance from 5500 K ... preferred
-    p1.stellar_parametersT08M, __, __ = p1.read_parameters(
+    cf.stellar_parametersTotal_alllines, __, __ = \
+        cf.read_parameters('SH0ES_atmparam_FREETotal_alllines_all.dat')  # Martino exc balance from 5500 K ... preferred
+    cf.stellar_parametersT08M, __, __ = cf.read_parameters(
         'LMC_R08_atmparam_FREETotal_alllines_all.dat')  # R08 Martino exc balance ... preferred
 
     # what = 'RT20M'  # R08 analysed by Martino w/ exc balance Teff, all Genovali lines  ... Preferred
