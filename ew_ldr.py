@@ -59,12 +59,12 @@ def read_parameters(infile):
         dvturb = 0.001 * np.ones(len(Fe))
 
     stellar_parameters = dict()
-    stellar_parameters['Fe'] = {'value': Fe, 'error': dFe, 'label': '[Fe/H]'}
-    stellar_parameters['Teff'] = {'value': Teff, 'error': dTeff, 'label': 'T_{eff}'}
+    stellar_parameters['Fe'] = {'value': Fe, 'error': dFe, 'label': '[Fe/H]\ [dex]'}
+    stellar_parameters['Teff'] = {'value': Teff, 'error': dTeff, 'label': 'T_{eff}\ [K]'}
     stellar_parameters['logTeff'] = {'value': np.log10(Teff), 'error': np.log10(1 + dTeff / Teff),
                                      'label': 'log(T_{eff})\ [K]'}
-    stellar_parameters['logg'] = {'value': logg, 'error': dlogg, 'label': 'log(g)'}
-    stellar_parameters['vturb'] = {'value': vturb, 'error': dvturb, 'label': 'v_{turb}'}
+    stellar_parameters['logg'] = {'value': logg, 'error': dlogg, 'label': 'log(g)\ [cm/s^2]'}
+    stellar_parameters['vturb'] = {'value': vturb, 'error': dvturb, 'label': 'v_{turb}\ [km/s]'}
 
     return ids, stellar_parameters
 
