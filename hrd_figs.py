@@ -135,12 +135,20 @@ def draw_hull(ax, logtes, loggs, dots=True, **kwargs):
         ax.plot(logtes, loggs, marker='o', linestyle='', color=color)
     return collection
 
-def read_all(what):
+def read_all():
+    what = 'Tot20allRT20M'  # SH0ES2020 + R08 samples analysed by Martino w/ exc balance Teff, full Genovali linelist
     ids, tes, dtes, lgP, phases, te_label, window_title = cf.select(what, 'Teff')
     ___, logtes, dlogtes, ___, ___, logte_label, ___ = cf.select(what, 'logTeff')
     ___, loggs, dloggs, ___, ___, logg_label, ___ = cf.select(what, 'logg')
     loglis, dloglis = compute_logli(loggs, logtes, dlogg=dloggs, dlogte=dlogtes)
     loggfs, dloggfs = compute_loggf(loggs, logtes, dlogg=dloggs, dlogte=dlogtes)
+
+    what = 'Tot20allProx'  # SH0ES sample analysed by Martino w/ Proxauf LDR Teff, full Genovali linelist
+    ids_prox, tes_prox, dtes_prox, lgP_prox, phases_prox, te_label_prox, window_title_prox = cf.select(what, 'Teff')
+    ___, logtes_prox, dlogtes_prox, ___, ___, logte_label_prox, ___ = cf.select(what, 'logTeff')
+    ___, loggs_prox, dloggs_prox, ___, ___, logg_label_prox, ___ = cf.select(what, 'logg')
+    loglis_prox, dloglis_prox = compute_logli(loggs_prox, logtes_prox, dlogg=dloggs_prox, dlogte=dlogtes_prox)
+    loggfs_prox, dloggfs_prox = compute_loggf(loggs_prox, logtes_prox, dlogg=dloggs_prox, dlogte=dlogtes_prox)
 
     # De Somma+21 Cepeid models
     logtes_mw, loggs_mw = read_desomma('Files/track_mw_F_1p5_can.csv')
@@ -317,6 +325,7 @@ def hrd(n, color_scale, figsize, in_ipython):
     def plot(ax, yys, degeneracy, color_scale='periods'):
         if color_scale == 'periods':
             col = n.lgP
+            col_prox = n.lgP_prox
             col_rip = n.lgP_rip
             col_genovali = n.lgP_genovali
             col_luck = n.lgP_luck
@@ -326,6 +335,7 @@ def hrd(n, color_scale, figsize, in_ipython):
             norm = matplotlib.colors.Normalize(vmin=np.min(col_all), vmax=np.max(col_all))
         elif color_scale == 'phases':
             col = n.phases
+            col_prox = n.phases_prox
             col_rip = n.phases_rip
             col_genovali = n.phases_genovali
             col_luck = n.phases_luck
@@ -344,6 +354,15 @@ def hrd(n, color_scale, figsize, in_ipython):
         label_texts.append('Romaniello+21 LMC FU')
         label_visibilities.append(True)
         labels.append(rom_dots)
+        #
+        romProx_cmap = ax.scatter(n.logtes_prox, yys['romProx'], c=col_prox, cmap=colormap, norm=norm, s=12**2,
+                                  marker='o', zorder=7)
+        romProx_dots = ax.scatter(n.logtes_prox, yys['romProx'], s=15**2, facecolors='none', edgecolors='indigo',
+                   zorder=7, linewidths=2.5)
+        lines.append((romProx_dots, romProx_cmap))
+        label_texts.append('Romaniello+21 Prox')
+        label_visibilities.append(True)
+        labels.append(romProx_dots)
         #
         se = n.modes_rip == mode0_rip
         rip0_cmap = ax.scatter(n.logtes_rip[(se)], yys['rip'][(se)], marker='o', c=col_rip[(se)],
@@ -468,7 +487,6 @@ def hrd(n, color_scale, figsize, in_ipython):
         label_visibilities.append(True)
         labels.append(deg_line)
 
-
         # Add the legend ...
         leg = ax.legend(labels, label_texts, fontsize=10, loc='lower right',
                         title='Click on the label, not\nthe symbol!, to toggle', title_fontsize=10)
@@ -482,14 +500,16 @@ def hrd(n, color_scale, figsize, in_ipython):
         lined = animate_legend(leg, label_visibilities, lines)
         ax.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax, lined))
 
-    gg = {'rom': n.loggs, 'drom': n.dloggs, 'dsm_mw': n.loggs_mw, 'dsm_lmc': n.loggs_lmc, 'dsm_lmcn': n.loggs_lmcn,
+    gg = {'rom': n.loggs, 'drom': n.dloggs, 'romProx': n.loggs_prox, 'dromProx': n.dloggs_prox,
+          'dsm_mw': n.loggs_mw, 'dsm_lmc': n.loggs_lmc, 'dsm_lmcn': n.loggs_lmcn,
           'rip': n.loggs_rip, 'riess': n.loggs_riess, 'car': n.loggs_car, 'chiosi': n.loggs_chiosi,
           'costa': n.loggs_costa, 'genovali': n.loggs_genovali, 'luck': n.loggs_luck, 'anderson0': n.loggs_anderson0,
           'anderson05': n.loggs_anderson05, 'anderson09': n.loggs_anderson09, 'anderson05mw': n.loggs_anderson05mw}
     degg = {'slope': 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 0.5}
     plot(ax11, gg, degg, color_scale=color_scale)
     #
-    ll = {'rom': n.loglis, 'drom': n.dloglis, 'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
+    ll = {'rom': n.loglis, 'drom': n.dloglis, 'romProx': n.loglis_prox, 'dromProx': n.dloglis_prox,
+          'dsm_mw': n.loglis_mw, 'dsm_lmc': n.loglis_lmc, 'dsm_lmcn': n.loglis_lmcn,
           'rip': n.loglis_rip, 'riess': n.loglis_riess, 'car': n.loglis_car, 'chiosi': n.loglis_chiosi,
           'costa': n.loglis_costa, 'genovali': n.loglis_genovali, 'luck': n.loglis_luck,
           'anderson0': n.loglis_anderson0, 'anderson05': n.loglis_anderson05, 'anderson09': n.loglis_anderson09,
@@ -497,7 +517,7 @@ def hrd(n, color_scale, figsize, in_ipython):
     degl = {'slope': 4 - 21, 'nsig': 3, 'xd1': 3.82, 'yd1': 4.5}
     plot(ax21, ll, degl, color_scale=color_scale)
 
-    
+
 def figs(n, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
     if not in_ipython:
@@ -711,12 +731,15 @@ def main(what_plot, color_scale, figsize):
         cf.read_parameters('SH0ES_atmparam_FREETotal_alllines_all.dat')  # Martino exc balance from 5500 K ... preferred
     cf.stellar_parametersT08M, __, __ = cf.read_parameters(
         'LMC_R08_atmparam_FREETotal_alllines_all.dat')  # R08 Martino exc balance ... preferred
+    cf.stellar_parameters_ldrProx, __, __ = cf.read_parameters('SH0ES_atmparam_LDRProxauf_alllines_all.dat')
+    # Martino Teff fixed from Proxauf's LDR
 
     # what = 'RT20M'  # R08 analysed by Martino w/ exc balance Teff, all Genovali lines  ... Preferred
     # what = 'Tot20all'  # SH0ES sample analysed by Martino w/ exc balance Teff, full Genovali linelist ### Preferred
-    what = 'Tot20allRT20M'  # SH0ES2020 + R08 samples analysed by Martino w/ exc balance Teff, full Genovali linelist
+    # what = 'Tot20allProx'  # SH0ES sample analysed by Martino w/ Proxauf LDR Teff, full Genovali linelist
+    # what = 'Tot20allRT20M'  # SH0ES2020 + R08 samples analysed by Martino w/ exc balance Teff, full Genovali linelist
 
-    tmp = read_all(what)
+    tmp = read_all()
     n = SimpleNamespace(**tmp)
 
     if what_plot == 'hrd':
