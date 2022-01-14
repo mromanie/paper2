@@ -335,7 +335,8 @@ def deLatex(instring):
     :param instring: input string to be de-LaTeX-ed.
     :return: de-LaTex-ed string.
     """
-    return instring.replace('_', '').replace('{', '').replace('}', '').replace('\ ', '_')
+    return instring.replace('_', '').replace('{', '').replace('}', '').replace('\ ', '_').replace('\mathrm', '')\
+        .replace('$', '')
 
 
 def latex(instring, markups):
@@ -451,6 +452,14 @@ def select(sample, what):
         phases = stellar_parametersTotal_alllines['phase']['value']
         ids = stellar_parametersTotal_alllines['ID']['value']
         window_title = 'SH0ES2020 sample analysed by Martino with excitation equilibrium Teff from 5500K, full ' \
+                       'Genovali linelist'
+    elif sample == 'Tot20allProx':
+        yys, dyys = stellar_parameters_ldrProx[what]['value'], stellar_parameters_ldrProx[what]['error']
+        label = stellar_parameters_ldrProx[what]['label']
+        lgP = stellar_parameters_ldrProx['logP']['value']
+        phases = stellar_parameters_ldrProx['phase']['value']
+        ids = stellar_parameters_ldrProx['ID']['value']
+        window_title = 'SH0ES2020 sample analysed by Martino with Teff from Proxauf LDRs, full ' \
                        'Genovali linelist'
     elif sample == 'Tot20allRT20M':
         yys1, dyys1 = stellar_parametersTotal_alllines[what]['value'], stellar_parametersTotal_alllines[what]['error']
