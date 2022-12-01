@@ -293,16 +293,26 @@ def read_all():
         lgP_luck[indices] = lP
         modes_luck[indices] = mode
 
-
     # Return all of the variables define in the function
     return locals()
 
-
+def adjust_canvas(fig):
+    # Change the toolbar position
+    fig.canvas.toolbar_position = 'right'
+    # Hide the Figure name at the top of the figure
+    fig.canvas.header_visible = False
+    # Hide the footer
+    fig.canvas.footer_visible = False
+    # Disable the resizing feature
+    fig.canvas.resizable = False
+    # If true then scrolling while the mouse is over the canvas will not move the entire notebook
+    fig.canvas.capture_scroll = True
 # ______________________________________________________________________________________________________________________
 
 mode0_rip, Y_car0, mode0_luck = 'DCEP_F', 0.25, 'F'
 def hrd(n, color_scale, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig1)
     if not in_ipython:
         cf.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
@@ -313,6 +323,7 @@ def hrd(n, color_scale, figsize, in_ipython):
     ax11.set_ylim(2.9, -0.25)
     #
     fig2, ax21 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig2)
     if not in_ipython:
         cf.set_window_position(fig2, 1200, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
@@ -520,6 +531,7 @@ def hrd(n, color_scale, figsize, in_ipython):
 
 def figs(n, figsize, in_ipython):
     fig1, ax11 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig1)
     if not in_ipython:
         cf.set_window_position(fig1, 0, 20)
     fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
@@ -538,6 +550,7 @@ def figs(n, figsize, in_ipython):
     ax11.legend(loc='upper left')
 
     fig2, ax21 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig2)
     if not in_ipython:
         cf.set_window_position(fig2, 1500, 20)
     fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
@@ -581,6 +594,7 @@ def figs(n, figsize, in_ipython):
     
     
     fig3, ax31 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig3)
     if not in_ipython:
         cf.set_window_position(fig3, 750, 20)
     fig3.canvas.set_window_title('Figure 3: ' + n.window_title)
@@ -617,6 +631,7 @@ def figs(n, figsize, in_ipython):
         
     
     fig4, ax41 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig4)
     if not in_ipython:
         cf.set_window_position(fig4, 2250, 20)
     fig4.canvas.set_window_title('Figure 4: ' + n.window_title)
@@ -653,6 +668,7 @@ def figs(n, figsize, in_ipython):
     ax41.get_figure().canvas.mpl_connect('pick_event', lambda event: on_pick_toggle_legend(event, ax41, lined41))
     
     fig5, ax51 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig5)
     if not in_ipython:
         cf.set_window_position(fig5, 2250, 20)
     fig5.canvas.set_window_title('Figure 5: ' + n.window_title)
@@ -696,6 +712,7 @@ def figs(n, figsize, in_ipython):
     
 
     fig6, ax61 = plt.subplots(figsize=figsize)
+    adjust_canvas(fig6)
     if not in_ipython:
         cf.set_window_position(fig6, 2250, 20)
     fig6.canvas.set_window_title('Figure 6: ' + n.window_title)
