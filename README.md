@@ -1,5 +1,4 @@
-# JupyterLab
-# Interactive dashboard from notebook with Voilà
+# Interactive dashboard
 
 | Voilà | JupyterLab |
 | :-----------------------: | :---------------------: |
