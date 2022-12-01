@@ -68,10 +68,22 @@ def read_parameters(infile):
 
     return ids, stellar_parameters
 
+def adjust_canvas(fig):
+    # Change the toolbar position
+    fig.canvas.toolbar_position = 'right'
+    # Hide the Figure name at the top of the figure
+    fig.canvas.header_visible = False
+    # Hide the footer
+    fig.canvas.footer_visible = False
+    # Disable the resizing feature
+    fig.canvas.resizable = False
+    # If true then scrolling while the mouse is over the canvas will not move the entire notebook
+    fig.canvas.capture_scroll = True
 
 # ______________________________________________________________________________________________________________________
 def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
     fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21)) = plt.subplots(nrows=3, ncols=2, figsize=figsize)
+    adjust_canvas(fig)
     if not in_ipython:
         cf.set_window_position(fig, 0, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
@@ -138,6 +150,7 @@ def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize
 def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize, in_ipython):
     # '''
     fig, ((ax00, ax01), (ax10, ax11), (ax20, ax21)) = plt.subplots(nrows=3, ncols=2, figsize=figsize)
+    adjust_canvas(fig)
     if not in_ipython:
         cf.set_window_position(fig, 1000, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
