@@ -140,7 +140,7 @@ def read_r08(mc):
     id = np.char.replace(id, 'HV', mc)
     sort_ind = np.argsort(id)
     #
-    Fe = np.char.replace(tab['col5'].data, '--', '-').astype(np.float)
+    Fe = np.char.replace(tab['col5'].data, '--', '-').astype(float)
     dFe = 0.1 * np.ones(len(Fe))
     #
     Teff = tab['col2'].data
@@ -177,14 +177,14 @@ def read_r08(mc):
     b = tab['col4'].data
     v = tab['col5'].data
     try:
-        b = np.char.replace(b, '\\ldots', 'nan').astype(np.float)
-        v = np.char.replace(v, '\\ldots', 'nan').astype(np.float)
+        b = np.char.replace(b, '\\ldots', 'nan').astype(float)
+        v = np.char.replace(v, '\\ldots', 'nan').astype(float)
     except:
         pass
     k = tab['col6'].data
     ebv = np.char.replace(tab['col7'].data, '\\\\', '')
     ebv = np.char.replace(ebv, '\\hline', '')
-    ebv = np.char.replace(ebv, '--', '-').astype(np.float)
+    ebv = np.char.replace(ebv, '--', '-').astype(float)
     #
     intrinsic_parameters = {'id': id[sort_ind]}
     intrinsic_parameters['logP'] = logP[sort_ind]
