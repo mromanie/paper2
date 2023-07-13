@@ -88,7 +88,7 @@ def compare(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figsize
         cf.set_window_position(fig, 0, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
     title = cf.latex(ylab, '\mathrm')
-    fig.canvas.set_window_title('')
+    fig.canvas.manager.set_window_title('')
     fig.suptitle(title)
     # https://stackoverflow.com/questions/7449585/how-do-you-set-the-absolute-position-of-figure-windows-with-matplotlib
     #     __, __, wdx, wdy = plt.get_current_fig_manager().window.geometry().getRect()
@@ -155,7 +155,7 @@ def degeneracy(ids, stellar_parameters_1, stellar_parameters_2, ylab, xlab, figs
         cf.set_window_position(fig, 1000, 20)
     fig.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.975)
     title = cf.latex(ylab, '\mathrm')
-    fig.canvas.set_window_title('')
+    fig.canvas.manager.set_window_title('')
     fig.suptitle(title)
 
     def plotd(ax, xx_what, yy_what):
