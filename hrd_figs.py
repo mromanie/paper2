@@ -315,7 +315,7 @@ def hrd(n, color_scale, figsize, in_ipython):
     adjust_canvas(fig1)
     if not in_ipython:
         cf.set_window_position(fig1, 0, 20)
-    fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
+    fig1.canvas.manager.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
     ax11.set_xlabel(cf.latex(n.logte_label, '\mathrm'))
     ax11.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
@@ -326,7 +326,7 @@ def hrd(n, color_scale, figsize, in_ipython):
     adjust_canvas(fig2)
     if not in_ipython:
         cf.set_window_position(fig2, 1200, 20)
-    fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
+    fig2.canvas.manager.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel(cf.latex(n.logte_label, '\mathrm'))
     ax21.set_ylabel(r'$\mathscr{L} / \mathscr{L}_\odot$')
@@ -534,7 +534,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig1)
     if not in_ipython:
         cf.set_window_position(fig1, 0, 20)
-    fig1.canvas.set_window_title('Figure 1: ' + n.window_title)
+    fig1.canvas.manager.set_window_title('Figure 1: ' + n.window_title)
     # fig1.subplots_adjust(top=0.95, bottom=0.2)
     ax11.set_xlabel(cf.latex(n.logg_label, '\mathrm'))
     ax11.set_ylabel('Number')
@@ -553,7 +553,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig2)
     if not in_ipython:
         cf.set_window_position(fig2, 1500, 20)
-    fig2.canvas.set_window_title('Figure 2: ' + n.window_title)
+    fig2.canvas.manager.set_window_title('Figure 2: ' + n.window_title)
     # fig2.subplots_adjust(top=0.95, bottom=0.2)
     ax21.set_xlabel('log(P) [days]')
     ax21.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
@@ -597,7 +597,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig3)
     if not in_ipython:
         cf.set_window_position(fig3, 750, 20)
-    fig3.canvas.set_window_title('Figure 3: ' + n.window_title)
+    fig3.canvas.manager.set_window_title('Figure 3: ' + n.window_title)
     # fig3.subplots_adjust(top=0.95, bottom=0.2)
     ax31.set_xlabel('Phase')
     ax31.set_ylabel(cf.latex(n.logg_label, '\mathrm'))
@@ -634,7 +634,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig4)
     if not in_ipython:
         cf.set_window_position(fig4, 2250, 20)
-    fig4.canvas.set_window_title('Figure 4: ' + n.window_title)
+    fig4.canvas.manager.set_window_title('Figure 4: ' + n.window_title)
     # fig4.subplots_adjust(top=0.95, bottom=0.2)
     ax41.set_xlabel('Phase')
     ax41.set_ylabel(cf.latex(n.logte_label, '\mathrm'))
@@ -671,7 +671,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig5)
     if not in_ipython:
         cf.set_window_position(fig5, 2250, 20)
-    fig5.canvas.set_window_title('Figure 5: ' + n.window_title)
+    fig5.canvas.manager.set_window_title('Figure 5: ' + n.window_title)
     # fig5.subplots_adjust(top=0.95, bottom=0.2)
     ax51.set_xlabel('log(P) [days]')
     ax51.set_ylabel(r'$\log(\mathrm{g}_\mathrm{F})$')
@@ -715,7 +715,7 @@ def figs(n, figsize, in_ipython):
     adjust_canvas(fig6)
     if not in_ipython:
         cf.set_window_position(fig6, 2250, 20)
-    fig6.canvas.set_window_title('Figure 6: ' + n.window_title)
+    fig6.canvas.manager.set_window_title('Figure 6: ' + n.window_title)
     # fig6.subplots_adjust(top=0.95, bottom=0.2)
     ax61.set_xlabel('log(P) [days]')
     ax61.set_ylabel('Number')
